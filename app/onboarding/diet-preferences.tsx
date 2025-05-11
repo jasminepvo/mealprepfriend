@@ -56,7 +56,7 @@ export default function DietPreferences() {
     try {
       // Save selected preferences and mark onboarding as complete
       await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
-      await router.replace('/');
+      await router.replace('/(tabs)/meal-plan');
     } catch (error) {
       console.error('Error completing onboarding:', error);
     }
