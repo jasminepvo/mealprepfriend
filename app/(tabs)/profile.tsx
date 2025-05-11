@@ -37,26 +37,29 @@ const DietPreferencesDisplay = ({
     {}
   );
 
+  // Find categories that have at least one selected item
+  const categoriesWithSelections = Object.entries(dietCategories).reduce<
+    Record<string, string[]>
+  >((acc, [category, items]) => {
+    const selectedInCategory = items.filter((item) => selectedItems[item]);
+    if (selectedInCategory.length > 0) {
+      acc[category] = selectedInCategory;
+    }
+    return acc;
+  }, {});
+
   return (
     <View style={styles.preferencesContainer}>
-      {Object.entries(dietCategories).map(([category, items]) => (
+      {Object.entries(categoriesWithSelections).map(([category, items]) => (
         <View key={category} style={styles.categoryContainer}>
           <Text style={styles.categoryTitle}>{category}</Text>
           <View style={styles.itemsContainer}>
             {items.map((item) => (
               <View
                 key={item}
-                style={[
-                  styles.itemButton,
-                  selectedItems[item] && styles.itemButtonActive,
-                ]}
+                style={[styles.itemButton, styles.itemButtonActive]}
               >
-                <Text
-                  style={[
-                    styles.itemText,
-                    selectedItems[item] && styles.itemTextActive,
-                  ]}
-                >
+                <Text style={[styles.itemText, styles.itemTextActive]}>
                   {item}
                 </Text>
               </View>
