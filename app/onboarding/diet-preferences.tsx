@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 import { theme } from '@/constants/theme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const ONBOARDING_KEY = '@onboarding_complete';
 
 const categories = {
   Protein: [
@@ -32,7 +36,8 @@ const categories = {
   Snacks: ['CHIPS', 'COOKIES', 'ICE CREAM', 'MANGO', 'STRAWBERRY', 'CUSTOM'],
 };
 
-export default function OnboardingDietPreferences() {
+export default function DietPreferences() {
+  const router = useRouter();
   const [selectedItems, setSelectedItems] = useState<
     Record<string, Record<string, boolean>>
   >({});
@@ -45,6 +50,20 @@ export default function OnboardingDietPreferences() {
         [item]: !prev[category]?.[item],
       },
     }));
+  };
+
+  const handleComplete = async () => {
+    try {
+      // Save selected preferences and mark onboarding as complete
+      await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
+      await router.replace('/');
+    } catch (error) {
+      console.error('Error completing onboarding:', error);
+    }
+  };
+
+  const handleBack = () => {
+    router.back();
   };
 
   return (
@@ -63,15 +82,35 @@ export default function OnboardingDietPreferences() {
                 ]}
                 onPress={() => toggleItem(category, item)}
               >
-                <Text style={styles.itemText}>{item}</Text>
+                <Text
+                  style={[
+                    styles.itemText,
+                    selectedItems[category]?.[item] && styles.itemTextActive,
+                  ]}
+                >
+                  {item}
+                </Text>
               </TouchableOpacity>
             ))}
           </View>
         </View>
       ))}
-      <TouchableOpacity style={styles.generateButton}>
-        <Text style={styles.generateText}>Generate meal plan</Text>
-      </TouchableOpacity>
+
+      <View style={styles.navigationButtons}>
+        <TouchableOpacity
+          style={[styles.button, styles.backButton]}
+          onPress={handleBack}
+        >
+          <Text style={[styles.buttonText, styles.backButtonText]}>Back</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.button, styles.nextButton]}
+          onPress={handleComplete}
+        >
+          <Text style={styles.buttonText}>Complete</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -81,7 +120,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background,
     padding: 24,
-    justifyContent: 'center',
   },
   title: {
     fontFamily: 'Inter-Regular',
@@ -89,6 +127,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     textAlign: 'center',
     marginBottom: 24,
+    marginTop: 60,
   },
   categoryContainer: {
     marginBottom: 16,
@@ -122,17 +161,38 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: theme.colors.text,
   },
-  generateButton: {
-    backgroundColor: theme.colors.primary,
+  itemTextActive: {
+    color: theme.colors.secondary,
+    fontFamily: 'Inter-Bold',
+  },
+  navigationButtons: {
+    flexDirection: 'row',
+    position: 'absolute',
+    bottom: 40,
+    left: 20,
+    right: 20,
+    gap: 12,
+  },
+  button: {
+    flex: 1,
+    padding: 16,
     borderRadius: theme.borderRadius.lg,
-    paddingVertical: 16,
-    marginTop: 24,
     alignItems: 'center',
   },
-  generateText: {
+  nextButton: {
+    backgroundColor: theme.colors.primary,
+  },
+  backButton: {
+    backgroundColor: theme.colors.card,
+    borderWidth: 2,
+    borderColor: theme.colors.border,
+  },
+  buttonText: {
     color: theme.colors.card,
-    fontFamily: 'Inter-Bold',
     fontSize: 16,
-    textTransform: 'capitalize',
+    fontFamily: 'Inter-Bold',
+  },
+  backButtonText: {
+    color: theme.colors.text,
   },
 });

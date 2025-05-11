@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { theme } from '@/constants/theme';
 import Slider from '@react-native-community/slider';
 
@@ -20,13 +21,19 @@ const activityLevels = [
   },
 ];
 
-export default function OnboardingUserDetails() {
+export default function UserDetails() {
+  const router = useRouter();
   const [gender, setGender] = useState<'male' | 'female'>('female');
   const [age, setAge] = useState(27);
   const [heightFt, setHeightFt] = useState('5');
   const [heightIn, setHeightIn] = useState('2');
   const [weight, setWeight] = useState('109');
   const [activity, setActivity] = useState('sedentary');
+
+  const handleNext = () => {
+    // Here you might want to save the user details before navigating
+    router.push('/onboarding/health-goals');
+  };
 
   return (
     <View style={styles.container}>
@@ -136,8 +143,8 @@ export default function OnboardingUserDetails() {
           </TouchableOpacity>
         ))}
       </View>
-      <TouchableOpacity style={styles.ctaButton}>
-        <Text style={styles.ctaText}>calculate tdee</Text>
+      <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+        <Text style={styles.nextButtonText}>Next</Text>
       </TouchableOpacity>
     </View>
   );
@@ -148,7 +155,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background,
     padding: 24,
-    justifyContent: 'center',
   },
   title: {
     fontFamily: 'Inter-Regular',
@@ -156,6 +162,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     textAlign: 'center',
     marginBottom: 24,
+    marginTop: 60,
   },
   genderRow: {
     flexDirection: 'row',
@@ -273,17 +280,19 @@ const styles = StyleSheet.create({
     color: theme.colors.secondary,
     fontFamily: 'Inter-Bold',
   },
-  ctaButton: {
+  nextButton: {
     backgroundColor: theme.colors.primary,
+    padding: 16,
     borderRadius: theme.borderRadius.lg,
-    paddingVertical: 16,
-    marginTop: 16,
     alignItems: 'center',
+    position: 'absolute',
+    bottom: 40,
+    left: 20,
+    right: 20,
   },
-  ctaText: {
+  nextButtonText: {
     color: theme.colors.card,
     fontFamily: 'Inter-Bold',
     fontSize: 16,
-    textTransform: 'lowercase',
   },
 });

@@ -1,9 +1,20 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 import { theme } from '@/constants/theme';
 
-export default function OnboardingHealthGoal() {
+export default function HealthGoals() {
+  const router = useRouter();
   const [goal, setGoal] = useState('lose');
+
+  const handleNext = () => {
+    // Here you might want to save the selected goal
+    router.push('/onboarding/diet-preferences');
+  };
+
+  const handleBack = () => {
+    router.back();
+  };
 
   return (
     <View style={styles.container}>
@@ -27,7 +38,11 @@ export default function OnboardingHealthGoal() {
         style={[styles.goalButton, goal === 'lose' && styles.goalButtonActive]}
         onPress={() => setGoal('lose')}
       >
-        <Text style={styles.goalText}>lose weight: 1500 cal</Text>
+        <Text
+          style={[styles.goalText, goal === 'lose' && styles.goalTextActive]}
+        >
+          lose weight: 1500 cal
+        </Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={[
@@ -36,13 +51,24 @@ export default function OnboardingHealthGoal() {
         ]}
         onPress={() => setGoal('maintain')}
       >
-        <Text style={styles.goalText}>maintain: 1600 cal</Text>
+        <Text
+          style={[
+            styles.goalText,
+            goal === 'maintain' && styles.goalTextActive,
+          ]}
+        >
+          maintain: 1600 cal
+        </Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={[styles.goalButton, goal === 'gain' && styles.goalButtonActive]}
         onPress={() => setGoal('gain')}
       >
-        <Text style={styles.goalText}>gain weight: 1800 cal</Text>
+        <Text
+          style={[styles.goalText, goal === 'gain' && styles.goalTextActive]}
+        >
+          gain weight: 1800 cal
+        </Text>
       </TouchableOpacity>
       <View style={styles.macroContainer}>
         <View style={styles.macroBox}>
@@ -58,9 +84,22 @@ export default function OnboardingHealthGoal() {
           <Text style={styles.macroValue}>25%</Text>
         </View>
       </View>
-      <TouchableOpacity style={styles.continueButton}>
-        <Text style={styles.continueText}>continue</Text>
-      </TouchableOpacity>
+
+      <View style={styles.navigationButtons}>
+        <TouchableOpacity
+          style={[styles.button, styles.backButton]}
+          onPress={handleBack}
+        >
+          <Text style={[styles.buttonText, styles.backButtonText]}>Back</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.button, styles.nextButton]}
+          onPress={handleNext}
+        >
+          <Text style={styles.buttonText}>Next</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -70,7 +109,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background,
     padding: 24,
-    justifyContent: 'center',
   },
   title: {
     fontFamily: 'Inter-Regular',
@@ -78,6 +116,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     textAlign: 'center',
     marginBottom: 24,
+    marginTop: 60,
   },
   caloriesContainer: {
     flexDirection: 'row',
@@ -139,6 +178,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: theme.colors.text,
   },
+  goalTextActive: {
+    color: theme.colors.primary,
+    fontFamily: 'Inter-Bold',
+  },
   macroContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -162,17 +205,34 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: theme.colors.text,
   },
-  continueButton: {
-    backgroundColor: theme.colors.primary,
+  navigationButtons: {
+    flexDirection: 'row',
+    position: 'absolute',
+    bottom: 40,
+    left: 20,
+    right: 20,
+    gap: 12,
+  },
+  button: {
+    flex: 1,
+    padding: 16,
     borderRadius: theme.borderRadius.lg,
-    paddingVertical: 16,
-    marginTop: 24,
     alignItems: 'center',
   },
-  continueText: {
+  nextButton: {
+    backgroundColor: theme.colors.primary,
+  },
+  backButton: {
+    backgroundColor: theme.colors.card,
+    borderWidth: 2,
+    borderColor: theme.colors.border,
+  },
+  buttonText: {
     color: theme.colors.card,
-    fontFamily: 'Inter-Bold',
     fontSize: 16,
-    textTransform: 'lowercase',
+    fontFamily: 'Inter-Bold',
+  },
+  backButtonText: {
+    color: theme.colors.text,
   },
 });
