@@ -9,7 +9,7 @@ export interface UserData {
   weight: string;
   activity: ActivityLevel;
   healthGoals: string[];
-  dietPreferences: string[];
+  dietPreferences: Record<string, Record<string, boolean>>;
   dailyCalories?: number;
   macros?: {
     protein: number;

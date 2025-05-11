@@ -12,7 +12,7 @@ import { Link, useRouter } from 'expo-router';
 import { ArrowRight, Utensils, Clock, UserCircle2 } from 'lucide-react-native';
 import { mockUserProfile, mockWeeklyMealPlan } from '@/data/mockData';
 import { theme } from '@/constants/theme';
-import AnimatedProgressBar from '@/components/AnimatedProgressBar';
+import AnimatedProgressBar from '@/app/components/AnimatedProgressBar';
 
 const Home = () => {
   const router = useRouter();

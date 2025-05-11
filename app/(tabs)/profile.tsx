@@ -6,10 +6,12 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Platform,
+  ScrollView,
 } from 'react-native';
 import { theme } from '@/constants/theme';
 import { useUserData, ActivityLevel } from '@/hooks/useUserData';
 import { useRouter } from 'expo-router';
+import DietPreferencesSection from '../components/DietPreferencesSection';
 
 const activityLabels: Record<ActivityLevel, string> = {
   sedentary: 'Sedentary',
@@ -146,7 +148,7 @@ export default function Profile() {
       : undefined;
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>MY PROFILE</Text>
         <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
@@ -216,7 +218,11 @@ export default function Profile() {
           </View>
         )}
       </View>
-    </View>
+
+      <DietPreferencesSection selectedItems={userData.dietPreferences || {}} />
+
+      <View style={styles.bottomPadding} />
+    </ScrollView>
   );
 }
 
@@ -382,5 +388,8 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     fontStyle: 'italic',
+  },
+  bottomPadding: {
+    height: 24,
   },
 });

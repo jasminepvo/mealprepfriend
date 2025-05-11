@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { theme } from '@/constants/theme';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const ONBOARDING_KEY = '@onboarding_complete';
+import { useUserData } from '@/hooks/useUserData';
+import { RadioChip } from '../components/RadioChip';
 
 const categories = {
   Protein: [
@@ -38,9 +37,27 @@ const categories = {
 
 export default function DietPreferences() {
   const router = useRouter();
+  const { userData, updateUserData } = useUserData();
+
+  // Initialize state with categories structure
   const [selectedItems, setSelectedItems] = useState<
     Record<string, Record<string, boolean>>
-  >({});
+  >(() => {
+    // Start with empty categories
+    const initialState: Record<string, Record<string, boolean>> = {};
+
+    // Initialize all categories and items
+    Object.entries(categories).forEach(([category, items]) => {
+      initialState[category] = {};
+      items.forEach((item) => {
+        // If we have existing user data, use it, otherwise initialize as false
+        initialState[category][item] =
+          userData?.dietPreferences?.[category]?.[item] || false;
+      });
+    });
+
+    return initialState;
+  });
 
   const toggleItem = (category: string, item: string) => {
     setSelectedItems((prev) => ({
@@ -54,11 +71,11 @@ export default function DietPreferences() {
 
   const handleComplete = async () => {
     try {
-      // Save selected preferences and mark onboarding as complete
-      await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
-      await router.replace('/(tabs)/meal-plan');
+      // Save selected preferences
+      await updateUserData({ dietPreferences: selectedItems });
+      router.replace('/(tabs)/meal-plan');
     } catch (error) {
-      console.error('Error completing onboarding:', error);
+      console.error('Error saving preferences:', error);
     }
   };
 
@@ -74,23 +91,13 @@ export default function DietPreferences() {
           <Text style={styles.categoryTitle}>{category}</Text>
           <View style={styles.itemsContainer}>
             {items.map((item) => (
-              <TouchableOpacity
+              <RadioChip
                 key={item}
-                style={[
-                  styles.itemButton,
-                  selectedItems[category]?.[item] && styles.itemButtonActive,
-                ]}
+                label={item}
+                isSelected={selectedItems[category]?.[item] || false}
                 onPress={() => toggleItem(category, item)}
-              >
-                <Text
-                  style={[
-                    styles.itemText,
-                    selectedItems[category]?.[item] && styles.itemTextActive,
-                  ]}
-                >
-                  {item}
-                </Text>
-              </TouchableOpacity>
+                activeColor={theme.colors.primary}
+              />
             ))}
           </View>
         </View>
@@ -122,8 +129,7 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   title: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 18,
+    ...theme.typography.heading2,
     color: theme.colors.text,
     textAlign: 'center',
     marginBottom: 24,
@@ -133,8 +139,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   categoryTitle: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 16,
+    ...theme.typography.body1,
     color: theme.colors.text,
     marginBottom: 8,
   },
@@ -142,28 +147,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'flex-start',
-  },
-  itemButton: {
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.lg,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    margin: 4,
-    borderWidth: 2,
-    borderColor: theme.colors.border,
-  },
-  itemButtonActive: {
-    backgroundColor: theme.colors.secondary + '22',
-    borderColor: theme.colors.secondary,
-  },
-  itemText: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    color: theme.colors.text,
-  },
-  itemTextActive: {
-    color: theme.colors.secondary,
-    fontFamily: 'Inter-Bold',
   },
   navigationButtons: {
     flexDirection: 'row',
@@ -188,9 +171,8 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border,
   },
   buttonText: {
+    ...theme.typography.button,
     color: theme.colors.card,
-    fontSize: 16,
-    fontFamily: 'Inter-Bold',
   },
   backButtonText: {
     color: theme.colors.text,
