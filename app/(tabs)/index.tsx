@@ -8,9 +8,28 @@ import {
 } from 'react-native';
 import { theme } from '@/constants/theme';
 
-const days = ['Monday', 'Tuesday', 'Wednesday'];
+const days = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+];
 const meals = ['Breakfast', 'Lunch', 'Dinner'];
-const mealData = {
+
+interface MealData {
+  protein: string;
+  carb: string;
+  fat: string;
+  meals: {
+    [key: string]: string;
+  };
+}
+
+// Example meal data for one day
+const exampleMealData: MealData = {
   protein: '120g protein',
   carb: '130g carb',
   fat: '25g fat',
@@ -25,6 +44,7 @@ export default function WeeklyMealPlan() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>WEEKLY MEAL PLAN</Text>
+
       <View style={styles.buttonRow}>
         <TouchableOpacity style={styles.navButton}>
           <Text style={styles.navButtonText}>GENERATE</Text>
@@ -33,19 +53,22 @@ export default function WeeklyMealPlan() {
           <Text style={styles.navButtonText}>PREP</Text>
         </TouchableOpacity>
       </View>
-      <ScrollView>
+
+      <ScrollView style={styles.mealPlanScroll}>
         {days.map((day) => (
-          <View key={day} style={styles.dayContainer}>
-            <Text style={styles.dayTitle}>{day}</Text>
-            <Text style={styles.macroText}>{mealData.protein}</Text>
-            <Text style={styles.macroText}>{mealData.carb}</Text>
-            <Text style={styles.macroText}>{mealData.fat}</Text>
+          <View key={day} style={styles.dayRow}>
+            <View style={styles.dayDetails}>
+              <Text style={styles.dayTitle}>{day}</Text>
+              <Text style={styles.macroText}>{exampleMealData.protein}</Text>
+              <Text style={styles.macroText}>{exampleMealData.carb}</Text>
+              <Text style={styles.macroText}>{exampleMealData.fat}</Text>
+            </View>
             <View style={styles.mealContainer}>
               {meals.map((meal) => (
                 <View key={meal} style={styles.mealBox}>
                   <Text style={styles.mealTitle}>{meal}</Text>
                   <Text style={styles.mealText}>
-                    {mealData.meals[meal as keyof typeof mealData.meals]}
+                    {exampleMealData.meals[meal]}
                   </Text>
                 </View>
               ))}
@@ -88,11 +111,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: theme.colors.text,
   },
-  dayContainer: {
+  mealPlanScroll: {
+    flex: 1,
+  },
+  dayRow: {
+    flexDirection: 'row',
     backgroundColor: theme.colors.card,
     borderRadius: theme.borderRadius.lg,
     padding: 16,
-    marginBottom: 16,
+    gap: 16,
+    marginBottom: 12,
+  },
+  dayDetails: {
+    width: 100,
+    borderRightWidth: 1,
+    borderRightColor: theme.colors.border,
+    paddingRight: 12,
   },
   dayTitle: {
     fontFamily: 'Inter-Bold',
@@ -103,41 +137,27 @@ const styles = StyleSheet.create({
   macroText: {
     fontFamily: 'Inter-Regular',
     fontSize: 14,
-    color: theme.colors.text,
+    color: theme.colors.secondary,
+    marginBottom: 4,
   },
   mealContainer: {
-    marginTop: 8,
+    flex: 1,
+    gap: 8,
   },
   mealBox: {
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.borderRadius.md,
-    padding: 8,
-    marginBottom: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 4,
   },
   mealTitle: {
-    fontFamily: 'Inter-Regular',
+    fontFamily: 'Inter-SemiBold',
     fontSize: 14,
     color: theme.colors.text,
   },
   mealText: {
     fontFamily: 'Inter-Regular',
     fontSize: 14,
-    color: theme.colors.text,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.border,
-  },
-  footerButton: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  footerButtonText: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    color: theme.colors.text,
+    color: theme.colors.secondary,
   },
 });
