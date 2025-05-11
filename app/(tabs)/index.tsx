@@ -7,6 +7,8 @@ import {
   ScrollView,
 } from 'react-native';
 import { theme } from '@/constants/theme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 
 const days = [
   'Monday',
@@ -41,6 +43,17 @@ const exampleMealData: MealData = {
 };
 
 export default function WeeklyMealPlan() {
+  const router = useRouter();
+
+  const resetOnboarding = async () => {
+    try {
+      await AsyncStorage.removeItem('@onboarding_complete');
+      router.replace('/onboarding/user-details');
+    } catch (error) {
+      console.error('Error resetting onboarding:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>WEEKLY MEAL PLAN</Text>
@@ -53,6 +66,11 @@ export default function WeeklyMealPlan() {
           <Text style={styles.navButtonText}>PREP</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Reset Button */}
+      <TouchableOpacity style={styles.resetButton} onPress={resetOnboarding}>
+        <Text style={styles.resetButtonText}>Reset Onboarding</Text>
+      </TouchableOpacity>
 
       <ScrollView style={styles.mealPlanScroll}>
         {days.map((day) => (
@@ -110,6 +128,18 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
     fontSize: 14,
     color: theme.colors.text,
+  },
+  resetButton: {
+    alignSelf: 'center',
+    backgroundColor: 'transparent',
+    paddingVertical: 8,
+    marginBottom: 8,
+  },
+  resetButtonText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 12,
+    color: theme.colors.secondary,
+    textDecorationLine: 'underline',
   },
   mealPlanScroll: {
     flex: 1,
