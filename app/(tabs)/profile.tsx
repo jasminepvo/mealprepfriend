@@ -1,52 +1,188 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  Platform,
+} from 'react-native';
 import { theme } from '@/constants/theme';
+import { useUserData, ActivityLevel } from '@/hooks/useUserData';
+import { useRouter } from 'expo-router';
+
+const activityLabels: Record<ActivityLevel, string> = {
+  sedentary: 'Sedentary',
+  lightly_active: 'Lightly Active',
+  moderately_active: 'Moderately Active',
+  very_active: 'Very Active',
+  extra_active: 'Extra Active',
+};
+
+interface MacroBreakdownProps {
+  macros:
+    | {
+        protein: number;
+        carbs: number;
+        fat: number;
+      }
+    | undefined;
+  healthGoals: string[] | undefined;
+}
+
+interface MacroItemProps {
+  label: string;
+  percentage: number;
+  color: string;
+}
+
+const MacroItem = ({ label, percentage, color }: MacroItemProps) => (
+  <View
+    style={[styles.macroBox, { borderLeftColor: color, borderLeftWidth: 4 }]}
+  >
+    <Text style={styles.macroLabel}>{label}</Text>
+    <Text style={styles.macroValue}>{percentage}%</Text>
+  </View>
+);
+
+const MacroBreakdown = ({ macros, healthGoals }: MacroBreakdownProps) => {
+  const getMacroExplanation = () => {
+    if (!healthGoals || healthGoals.length === 0) return '';
+
+    const primaryGoal = healthGoals[0].toLowerCase();
+    switch (primaryGoal) {
+      case 'build muscle':
+        return 'Higher protein ratio to support muscle growth and recovery';
+      case 'lose weight':
+        return 'Higher protein and fat with reduced carbs to promote satiety and fat loss';
+      case 'maintain weight':
+        return 'Balanced macro split for overall health maintenance';
+      case 'improve fitness':
+        return 'Higher carbs for sustained energy during workouts';
+      case 'gain weight':
+        return 'Higher carbs and fats to support caloric surplus';
+      default:
+        return '';
+    }
+  };
+
+  if (!macros) return null;
+
+  return (
+    <View style={styles.card}>
+      <Text style={styles.cardTitle}>Macro Breakdown</Text>
+      <View style={styles.macroContainer}>
+        <MacroItem
+          label="Protein"
+          percentage={macros.protein}
+          color="#FF6B6B"
+        />
+        <MacroItem label="Carbs" percentage={macros.carbs} color="#4ECDC4" />
+        <MacroItem label="Fat" percentage={macros.fat} color="#45B7D1" />
+      </View>
+      {healthGoals && healthGoals.length > 0 && (
+        <Text style={styles.macroExplanation}>{getMacroExplanation()}</Text>
+      )}
+    </View>
+  );
+};
 
 export default function Profile() {
+  const { userData, isLoading } = useUserData();
+  const router = useRouter();
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      </View>
+    );
+  }
+
+  if (!userData) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Profile Not Found</Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => router.push('/onboarding/user-details')}
+        >
+          <Text style={styles.buttonText}>Complete Onboarding</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  const handleEdit = () => {
+    router.push('/onboarding/user-details');
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>HELLO JASMINE</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>MY PROFILE</Text>
+        <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
+          <Text style={styles.editButtonText}>Edit</Text>
+        </TouchableOpacity>
+      </View>
+
       <View style={styles.caloriesContainer}>
         <View style={styles.caloriesBox}>
           <Text style={styles.caloriesLabel}>BMI</Text>
-          <Text style={styles.caloriesValue}>24.5</Text>
+          <Text style={styles.caloriesValue}>{userData.bmi?.toFixed(1)}</Text>
         </View>
         <View style={styles.caloriesBox}>
           <Text style={styles.caloriesLabel}>TDEE</Text>
-          <Text style={styles.caloriesValue}>900</Text>
+          <Text style={styles.caloriesValue}>{userData.dailyCalories}</Text>
         </View>
         <View style={styles.caloriesBoxLarge}>
           <Text style={styles.caloriesLabel}>Daily calories</Text>
-          <Text style={styles.caloriesValueLarge}>1560 cal</Text>
+          <Text style={styles.caloriesValueLarge}>
+            {userData.dailyCalories} cal
+          </Text>
         </View>
       </View>
-      <View style={styles.macroContainer}>
-        <View style={styles.macroBox}>
-          <Text style={styles.macroLabel}>Protein</Text>
-          <Text style={styles.macroValue}>40%</Text>
-        </View>
-        <View style={styles.macroBox}>
-          <Text style={styles.macroLabel}>Carb</Text>
-          <Text style={styles.macroValue}>35%</Text>
-        </View>
-        <View style={styles.macroBox}>
-          <Text style={styles.macroLabel}>Fat</Text>
-          <Text style={styles.macroValue}>25%</Text>
-        </View>
-      </View>
+
+      <MacroBreakdown
+        macros={userData.macros}
+        healthGoals={userData.healthGoals}
+      />
+
       <View style={styles.detailsContainer}>
-        <Text style={styles.detailsText}>AGE</Text>
-        <Text style={styles.detailsValue}>27</Text>
-        <Text style={styles.detailsText}>GENDER</Text>
-        <Text style={styles.detailsValue}>FEMALE</Text>
-        <Text style={styles.detailsText}>HEIGHT</Text>
-        <Text style={styles.detailsValue}>5'2</Text>
-        <Text style={styles.detailsText}>WEIGHT</Text>
-        <Text style={styles.detailsValue}>109</Text>
-        <Text style={styles.detailsText}>ACTIVITY</Text>
-        <Text style={styles.detailsValue}>SEDENTARY</Text>
-        <Text style={styles.detailsText}>HEALTH GOAL</Text>
-        <Text style={styles.detailsValue}>LOSE WEIGHT</Text>
+        <View style={styles.detailsRow}>
+          <Text style={styles.detailsText}>AGE</Text>
+          <Text style={styles.detailsValue}>{userData.age}</Text>
+        </View>
+        <View style={styles.detailsRow}>
+          <Text style={styles.detailsText}>GENDER</Text>
+          <Text style={styles.detailsValue}>
+            {userData.gender.toUpperCase()}
+          </Text>
+        </View>
+        <View style={styles.detailsRow}>
+          <Text style={styles.detailsText}>HEIGHT</Text>
+          <Text style={styles.detailsValue}>
+            {userData.heightFt}'{userData.heightIn}"
+          </Text>
+        </View>
+        <View style={styles.detailsRow}>
+          <Text style={styles.detailsText}>WEIGHT</Text>
+          <Text style={styles.detailsValue}>{userData.weight} lbs</Text>
+        </View>
+        <View style={styles.detailsRow}>
+          <Text style={styles.detailsText}>ACTIVITY</Text>
+          <Text style={styles.detailsValue}>
+            {activityLabels[userData.activity]}
+          </Text>
+        </View>
+        {userData.healthGoals && userData.healthGoals.length > 0 && (
+          <View style={styles.detailsRow}>
+            <Text style={styles.detailsText}>HEALTH GOALS</Text>
+            <Text style={styles.detailsValue}>
+              {userData.healthGoals.join(', ')}
+            </Text>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -56,106 +192,156 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
-    padding: 24,
+    padding: theme.spacing.lg,
+  },
+  loadingContainer: {
+    flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: theme.colors.background,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: theme.spacing.lg,
   },
   title: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 18,
+    ...theme.typography.heading2,
     color: theme.colors.text,
-    textAlign: 'center',
-    marginBottom: 24,
+  },
+  editButton: {
+    backgroundColor: theme.colors.primary,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.borderRadius.sm,
+  },
+  editButtonText: {
+    color: theme.colors.card,
+    ...theme.typography.button,
   },
   caloriesContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 24,
+    marginBottom: theme.spacing.lg,
   },
   caloriesBox: {
     flex: 1,
     backgroundColor: theme.colors.card,
     borderRadius: theme.borderRadius.lg,
-    padding: 16,
+    padding: theme.spacing.md,
     marginHorizontal: 4,
     alignItems: 'center',
+    ...theme.shadow.sm,
   },
   caloriesBoxLarge: {
     flex: 1.5,
     backgroundColor: theme.colors.card,
     borderRadius: theme.borderRadius.lg,
-    padding: 16,
+    padding: theme.spacing.md,
     marginHorizontal: 4,
     alignItems: 'center',
+    ...theme.shadow.sm,
   },
   caloriesLabel: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
+    ...theme.typography.caption,
     color: theme.colors.text,
+    opacity: 0.7,
   },
   caloriesValue: {
-    fontFamily: 'Inter-Bold',
-    fontSize: 24,
+    ...theme.typography.heading3,
     color: theme.colors.text,
   },
   caloriesValueLarge: {
-    fontFamily: 'Inter-Bold',
-    fontSize: 32,
-    color: theme.colors.text,
+    ...theme.typography.heading1,
+    color: theme.colors.primary,
   },
   macroContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 24,
+    marginBottom: theme.spacing.lg,
   },
   macroBox: {
     flex: 1,
     backgroundColor: theme.colors.card,
     borderRadius: theme.borderRadius.lg,
-    padding: 16,
+    padding: theme.spacing.md,
     marginHorizontal: 4,
     alignItems: 'center',
+    ...theme.shadow.sm,
   },
   macroLabel: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
+    ...theme.typography.caption,
     color: theme.colors.text,
+    opacity: 0.7,
   },
   macroValue: {
-    fontFamily: 'Inter-Bold',
-    fontSize: 18,
-    color: theme.colors.text,
+    ...theme.typography.heading3,
+    color: theme.colors.secondary,
   },
   detailsContainer: {
     backgroundColor: theme.colors.card,
     borderRadius: theme.borderRadius.lg,
-    padding: 16,
-    marginBottom: 24,
+    padding: theme.spacing.lg,
+    ...theme.shadow.sm,
   },
-  detailsText: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    color: theme.colors.text,
-  },
-  detailsValue: {
-    fontFamily: 'Inter-Bold',
-    fontSize: 14,
-    color: theme.colors.text,
-    textAlign: 'right',
-  },
-  footer: {
+  detailsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.border,
+    alignItems: 'center',
+    paddingVertical: theme.spacing.xs,
   },
-  footerButton: {
-    flex: 1,
+  detailsText: {
+    ...theme.typography.body2,
+    color: theme.colors.text,
+    opacity: 0.7,
+  },
+  detailsValue: {
+    ...theme.typography.body2,
+    color: theme.colors.text,
+    fontFamily: 'Inter-SemiBold',
+  },
+  button: {
+    backgroundColor: theme.colors.primary,
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.lg,
     alignItems: 'center',
   },
-  footerButtonText: {
-    fontFamily: 'Inter-Regular',
+  buttonText: {
+    color: theme.colors.card,
+    ...theme.typography.button,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 8,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+      web: {
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+      },
+    }),
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  macroExplanation: {
+    marginTop: 10,
     fontSize: 14,
-    color: theme.colors.text,
+    color: '#666',
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
 });

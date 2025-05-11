@@ -6,10 +6,12 @@ import {
   TouchableOpacity,
   TextInput,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { theme } from '@/constants/theme';
 import NativeSlider from '@react-native-community/slider';
+import { useUserData, ActivityLevel } from '@/hooks/useUserData';
 
 // Web-compatible slider component
 function WebSlider({
@@ -47,7 +49,7 @@ function WebSlider({
 
 const Slider = Platform.OS === 'web' ? WebSlider : NativeSlider;
 
-const activityLevels = [
+const activityLevels: { label: string; value: ActivityLevel }[] = [
   { label: 'sedentary - little to no exercise', value: 'sedentary' },
   { label: 'lightly active - 1-3 days/week', value: 'lightly_active' },
   { label: 'moderately active - 3-5 days/week', value: 'moderately_active' },
@@ -60,17 +62,46 @@ const activityLevels = [
 
 export default function UserDetails() {
   const router = useRouter();
-  const [gender, setGender] = useState<'male' | 'female'>('female');
-  const [age, setAge] = useState(27);
-  const [heightFt, setHeightFt] = useState('5');
-  const [heightIn, setHeightIn] = useState('2');
-  const [weight, setWeight] = useState('109');
-  const [activity, setActivity] = useState('sedentary');
+  const { userData, updateUserData, isLoading } = useUserData();
 
-  const handleNext = () => {
-    // Here you might want to save the user details before navigating
-    router.push('/onboarding/health-goals');
+  const [gender, setGender] = useState<'male' | 'female'>(
+    userData?.gender || 'female'
+  );
+  const [age, setAge] = useState(userData?.age || 27);
+  const [heightFt, setHeightFt] = useState(userData?.heightFt || '5');
+  const [heightIn, setHeightIn] = useState(userData?.heightIn || '2');
+  const [weight, setWeight] = useState(userData?.weight || '109');
+  const [activity, setActivity] = useState<ActivityLevel>(
+    userData?.activity || 'sedentary'
+  );
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleNext = async () => {
+    setIsSaving(true);
+    try {
+      await updateUserData({
+        gender,
+        age,
+        heightFt,
+        heightIn,
+        weight,
+        activity,
+      });
+      router.push('/onboarding/health-goals');
+    } catch (error) {
+      console.error('Error saving user details:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -167,7 +198,7 @@ export default function UserDetails() {
               styles.activityButton,
               activity === level.value && styles.activityButtonActive,
             ]}
-            onPress={() => setActivity(level.value)}
+            onPress={() => setActivity(level.value as ActivityLevel)}
           >
             <Text
               style={[
@@ -180,14 +211,26 @@ export default function UserDetails() {
           </TouchableOpacity>
         ))}
       </View>
-      <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-        <Text style={styles.nextButtonText}>Next</Text>
+      <TouchableOpacity
+        style={[styles.nextButton, isSaving && styles.nextButtonDisabled]}
+        onPress={handleNext}
+        disabled={isSaving}
+      >
+        <Text style={styles.nextButtonText}>
+          {isSaving ? 'Saving...' : 'Next'}
+        </Text>
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: theme.colors.background,
+  },
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
@@ -331,5 +374,8 @@ const styles = StyleSheet.create({
     color: theme.colors.card,
     fontFamily: 'Inter-Bold',
     fontSize: 16,
+  },
+  nextButtonDisabled: {
+    opacity: 0.5,
   },
 });
