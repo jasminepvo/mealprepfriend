@@ -22,7 +22,7 @@ export default function TabLayout() {
         }}
       /> */}
       <Tabs.Screen
-        name="weekly-meal-plan"
+        name="index"
         options={{
           title: 'Meal Plan',
           tabBarIcon: ({ size, color }) => (
