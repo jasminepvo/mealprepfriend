@@ -87,6 +87,29 @@ const MacroBreakdown = ({ macros, healthGoals }: MacroBreakdownProps) => {
   );
 };
 
+const getAdjustedCalories = (baseCalories: number, healthGoal: string) => {
+  const adjustments: Record<string, number> = {
+    'build muscle': 1.15, // +15%
+    'lose weight': 0.8, // -20%
+    'maintain weight': 1.0, // no change
+    'gain weight': 1.2, // +20%
+  };
+
+  const adjustment = adjustments[healthGoal.toLowerCase()] || 1.0;
+  return Math.round(baseCalories * adjustment);
+};
+
+const getCalorieDescription = (healthGoal: string) => {
+  const descriptions: Record<string, string> = {
+    'build muscle': 'Surplus for muscle gain',
+    'lose weight': 'Deficit for fat loss',
+    'maintain weight': 'Maintenance calories',
+    'gain weight': 'Surplus for weight gain',
+  };
+
+  return descriptions[healthGoal.toLowerCase()] || 'Daily target';
+};
+
 export default function Profile() {
   const { userData, isLoading } = useUserData();
   const router = useRouter();
@@ -117,6 +140,11 @@ export default function Profile() {
     router.push('/onboarding/user-details');
   };
 
+  const targetCalories =
+    userData?.dailyCalories && userData?.healthGoals?.[0]
+      ? getAdjustedCalories(userData.dailyCalories, userData.healthGoals[0])
+      : undefined;
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -134,11 +162,15 @@ export default function Profile() {
         <View style={styles.caloriesBox}>
           <Text style={styles.caloriesLabel}>TDEE</Text>
           <Text style={styles.caloriesValue}>{userData.dailyCalories}</Text>
+          <Text style={styles.caloriesCaption}>Base calories</Text>
         </View>
         <View style={styles.caloriesBoxLarge}>
-          <Text style={styles.caloriesLabel}>Daily calories</Text>
-          <Text style={styles.caloriesValueLarge}>
-            {userData.dailyCalories} cal
+          <Text style={styles.caloriesLabel}>Target Calories</Text>
+          <Text style={styles.caloriesValueLarge}>{targetCalories} cal</Text>
+          <Text style={styles.caloriesCaption}>
+            {userData.healthGoals?.[0]
+              ? getCalorieDescription(userData.healthGoals[0])
+              : ''}
           </Text>
         </View>
       </View>
@@ -255,6 +287,13 @@ const styles = StyleSheet.create({
   caloriesValueLarge: {
     ...theme.typography.heading1,
     color: theme.colors.primary,
+  },
+  caloriesCaption: {
+    ...theme.typography.caption,
+    color: theme.colors.text,
+    opacity: 0.6,
+    marginTop: 4,
+    textAlign: 'center',
   },
   macroContainer: {
     flexDirection: 'row',

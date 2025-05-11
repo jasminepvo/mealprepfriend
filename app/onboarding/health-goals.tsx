@@ -18,6 +18,8 @@ interface GoalConfig {
     fat: number;
   };
   description: string;
+  calorieAdjustment: number; // Percentage modifier for daily calories
+  calorieDescription: string;
 }
 
 const HEALTH_GOALS: Record<HealthGoal, GoalConfig> = {
@@ -25,21 +27,29 @@ const HEALTH_GOALS: Record<HealthGoal, GoalConfig> = {
     title: 'Build Muscle',
     macros: { protein: 45, carbs: 35, fat: 20 },
     description: 'Higher protein for muscle growth',
+    calorieAdjustment: 1.15, // 15% caloric surplus
+    calorieDescription: 'Caloric surplus for muscle gain',
   },
   'lose weight': {
     title: 'Lose Weight',
     macros: { protein: 40, carbs: 25, fat: 35 },
     description: 'Higher protein, lower carbs',
+    calorieAdjustment: 0.8, // 20% caloric deficit
+    calorieDescription: 'Caloric deficit for fat loss',
   },
   'maintain weight': {
     title: 'Maintain Weight',
     macros: { protein: 35, carbs: 40, fat: 25 },
     description: 'Balanced nutrition',
+    calorieAdjustment: 1.0, // Maintenance calories
+    calorieDescription: 'Maintenance calories',
   },
   'gain weight': {
     title: 'Gain Weight',
     macros: { protein: 30, carbs: 45, fat: 25 },
     description: 'Higher carbs and fats',
+    calorieAdjustment: 1.2, // 20% caloric surplus
+    calorieDescription: 'Caloric surplus for weight gain',
   },
 };
 
@@ -50,7 +60,10 @@ export default function HealthGoals() {
     useState<HealthGoal>('maintain weight');
 
   const handleNext = async () => {
-    await updateUserData({ healthGoals: [selectedGoal] });
+    await updateUserData({
+      healthGoals: [selectedGoal],
+      dailyCalories: getAdjustedCalories(),
+    });
     router.push('/onboarding/diet-preferences');
   };
 
@@ -59,6 +72,15 @@ export default function HealthGoals() {
   };
 
   const currentMacros = HEALTH_GOALS[selectedGoal].macros;
+
+  const getAdjustedCalories = () => {
+    if (!userData?.dailyCalories) return undefined;
+    const baseCalories = userData.dailyCalories;
+    const adjustment = HEALTH_GOALS[selectedGoal].calorieAdjustment;
+    return Math.round(baseCalories * adjustment);
+  };
+
+  const adjustedCalories = getAdjustedCalories();
 
   return (
     <View style={styles.container}>
@@ -78,9 +100,14 @@ export default function HealthGoals() {
           </Text>
         </View>
         <View style={styles.caloriesBoxLarge}>
-          <Text style={styles.caloriesLabel}>Daily calories</Text>
+          <Text style={styles.caloriesLabel}>Target Daily Calories</Text>
           <Text style={styles.caloriesValueLarge}>
-            {userData?.dailyCalories ? `${userData.dailyCalories} cal` : '--'}
+            {adjustedCalories ? `${adjustedCalories} cal` : '--'}
+          </Text>
+          <Text style={styles.caloriesDescription}>
+            {userData?.dailyCalories
+              ? HEALTH_GOALS[selectedGoal].calorieDescription
+              : ''}
           </Text>
         </View>
       </View>
@@ -199,6 +226,12 @@ const styles = StyleSheet.create({
   caloriesValueLarge: {
     ...theme.typography.heading1,
     color: theme.colors.primary,
+  },
+  caloriesDescription: {
+    ...theme.typography.caption,
+    color: theme.colors.text,
+    opacity: 0.6,
+    marginTop: 4,
   },
   goalButton: {
     backgroundColor: theme.colors.card,
