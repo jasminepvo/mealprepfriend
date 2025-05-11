@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { theme } from '@/constants/theme';
@@ -36,10 +36,40 @@ const categories = {
 
 export default function DietPreferences() {
   const router = useRouter();
-  const { updateUserData } = useUserData();
+  const { userData, updateUserData } = useUserData();
   const [selectedItems, setSelectedItems] = useState<
     Record<string, Record<string, boolean>>
   >({});
+
+  // Initialize selected items from saved preferences
+  useEffect(() => {
+    if (userData?.dietPreferences) {
+      const initialSelected: Record<string, Record<string, boolean>> = {};
+
+      // Initialize all categories with false values
+      Object.entries(categories).forEach(([category, items]) => {
+        initialSelected[category] = {};
+        items.forEach((item) => {
+          initialSelected[category][item] = false;
+        });
+      });
+
+      // Set true for saved preferences
+      userData.dietPreferences.forEach((pref) => {
+        // Find which category the preference belongs to
+        Object.entries(categories).forEach(([category, items]) => {
+          if (items.includes(pref)) {
+            initialSelected[category] = {
+              ...initialSelected[category],
+              [pref]: true,
+            };
+          }
+        });
+      });
+
+      setSelectedItems(initialSelected);
+    }
+  }, [userData?.dietPreferences]);
 
   const toggleItem = (category: string, item: string) => {
     setSelectedItems((prev) => ({
