@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Platform,
+  ScrollView,
 } from 'react-native';
 import { theme } from '@/constants/theme';
 import { useUserData, ActivityLevel } from '@/hooks/useUserData';
@@ -17,6 +18,83 @@ const activityLabels: Record<ActivityLevel, string> = {
   moderately_active: 'Moderately Active',
   very_active: 'Very Active',
   extra_active: 'Extra Active',
+};
+
+const categories = {
+  Protein: [
+    'FISH',
+    'STEAK',
+    'TURKEY BACON',
+    'BACON',
+    'CHICKEN',
+    'GROUND BEEF',
+    'GROUND TURKEY',
+  ],
+  Carb: [
+    'RICE',
+    'POTATO',
+    'SWEET POTATO',
+    'QUINOA',
+    'FRENCH FRIES',
+    'TORTILLA',
+  ],
+  Veggies: [
+    'BROCCOLI',
+    'CARROT',
+    'BOY CHOY',
+    'SALAD MIX',
+    'KIMCHI',
+    'GREEN BEANS',
+    'BRUSSEL SPROUTS',
+  ],
+  Snacks: ['CHIPS', 'COOKIES', 'ICE CREAM', 'MANGO', 'STRAWBERRY', 'CUSTOM'],
+};
+
+interface DietPreferencesDisplayProps {
+  preferences: string[];
+}
+
+const DietPreferencesDisplay = ({
+  preferences,
+}: DietPreferencesDisplayProps) => {
+  // Create a map of selected items
+  const selectedItems = preferences.reduce<Record<string, boolean>>(
+    (acc, pref) => {
+      acc[pref] = true;
+      return acc;
+    },
+    {}
+  );
+
+  return (
+    <View style={styles.preferencesContainer}>
+      {Object.entries(categories).map(([category, items]) => (
+        <View key={category} style={styles.categoryContainer}>
+          <Text style={styles.categoryTitle}>{category}</Text>
+          <View style={styles.itemsContainer}>
+            {items.map((item) => (
+              <View
+                key={item}
+                style={[
+                  styles.itemButton,
+                  selectedItems[item] && styles.itemButtonActive,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.itemText,
+                    selectedItems[item] && styles.itemTextActive,
+                  ]}
+                >
+                  {item}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      ))}
+    </View>
+  );
 };
 
 interface MacroBreakdownProps {
@@ -146,7 +224,7 @@ export default function Profile() {
       : undefined;
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>MY PROFILE</Text>
         <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
@@ -216,7 +294,14 @@ export default function Profile() {
           </View>
         )}
       </View>
-    </View>
+
+      {userData.dietPreferences && userData.dietPreferences.length > 0 && (
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Diet Preferences</Text>
+          <DietPreferencesDisplay preferences={userData.dietPreferences} />
+        </View>
+      )}
+    </ScrollView>
   );
 }
 
@@ -351,30 +436,16 @@ const styles = StyleSheet.create({
     ...theme.typography.button,
   },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginVertical: 8,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 3,
-      },
-      web: {
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      },
-    }),
+    backgroundColor: theme.colors.card,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg,
+    marginTop: theme.spacing.lg,
+    ...theme.shadow.sm,
   },
   cardTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 12,
-    textAlign: 'center',
+    ...theme.typography.heading3,
+    color: theme.colors.text,
+    marginBottom: theme.spacing.sm,
   },
   macroExplanation: {
     marginTop: 10,
@@ -382,5 +453,43 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     fontStyle: 'italic',
+  },
+  preferencesContainer: {
+    marginTop: theme.spacing.md,
+  },
+  categoryContainer: {
+    marginBottom: theme.spacing.md,
+  },
+  categoryTitle: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 16,
+    color: theme.colors.text,
+    marginBottom: theme.spacing.sm,
+  },
+  itemsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.spacing.xs,
+  },
+  itemButton: {
+    backgroundColor: theme.colors.card,
+    borderRadius: theme.borderRadius.lg,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderWidth: 2,
+    borderColor: theme.colors.border,
+  },
+  itemButtonActive: {
+    backgroundColor: theme.colors.secondary + '22',
+    borderColor: theme.colors.secondary,
+  },
+  itemText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 14,
+    color: theme.colors.text,
+  },
+  itemTextActive: {
+    color: theme.colors.secondary,
+    fontFamily: 'Inter-Bold',
   },
 });

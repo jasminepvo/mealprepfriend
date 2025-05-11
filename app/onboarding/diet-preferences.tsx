@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { theme } from '@/constants/theme';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const ONBOARDING_KEY = '@onboarding_complete';
+import { useUserData } from '@/hooks/useUserData';
 
 const categories = {
   Protein: [
@@ -38,6 +36,7 @@ const categories = {
 
 export default function DietPreferences() {
   const router = useRouter();
+  const { updateUserData } = useUserData();
   const [selectedItems, setSelectedItems] = useState<
     Record<string, Record<string, boolean>>
   >({});
@@ -54,8 +53,20 @@ export default function DietPreferences() {
 
   const handleComplete = async () => {
     try {
+      // Convert selected items to array of strings
+      const selectedPreferences = Object.entries(selectedItems).reduce<
+        string[]
+      >((acc, [category, items]) => {
+        const selectedInCategory = Object.entries(items)
+          .filter(([_, isSelected]) => isSelected)
+          .map(([item]) => item);
+        return [...acc, ...selectedInCategory];
+      }, []);
+
       // Save selected preferences and mark onboarding as complete
-      await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
+      await updateUserData({
+        dietPreferences: selectedPreferences,
+      });
       await router.replace('/(tabs)/meal-plan');
     } catch (error) {
       console.error('Error completing onboarding:', error);
