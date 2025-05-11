@@ -5,10 +5,47 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { theme } from '@/constants/theme';
-import Slider from '@react-native-community/slider';
+import NativeSlider from '@react-native-community/slider';
+
+// Web-compatible slider component
+function WebSlider({
+  style,
+  value,
+  onValueChange,
+  minimumValue,
+  maximumValue,
+  step,
+}: {
+  style?: any;
+  value: number;
+  onValueChange: (value: number) => void;
+  minimumValue: number;
+  maximumValue: number;
+  step: number;
+}) {
+  return (
+    <input
+      type="range"
+      style={{
+        ...style,
+        width: '100%',
+        height: 40,
+        accentColor: theme.colors.primary,
+      }}
+      value={value}
+      min={minimumValue}
+      max={maximumValue}
+      step={step}
+      onChange={(e) => onValueChange(Number(e.target.value))}
+    />
+  );
+}
+
+const Slider = Platform.OS === 'web' ? WebSlider : NativeSlider;
 
 const activityLevels = [
   { label: 'sedentary - little to no exercise', value: 'sedentary' },
