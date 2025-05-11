@@ -44,7 +44,9 @@ export default function WeeklyMealPlan() {
               {meals.map((meal) => (
                 <View key={meal} style={styles.mealBox}>
                   <Text style={styles.mealTitle}>{meal}</Text>
-                  <Text style={styles.mealText}>{mealData.meals[meal]}</Text>
+                  <Text style={styles.mealText}>
+                    {mealData.meals[meal as keyof typeof mealData.meals]}
+                  </Text>
                 </View>
               ))}
             </View>
