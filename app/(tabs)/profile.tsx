@@ -11,6 +11,7 @@ import {
 import { theme } from '@/constants/theme';
 import { useUserData, ActivityLevel } from '@/hooks/useUserData';
 import { useRouter } from 'expo-router';
+import dietCategories from '@/data/dietCategories';
 
 const activityLabels: Record<ActivityLevel, string> = {
   sedentary: 'Sedentary',
@@ -18,36 +19,6 @@ const activityLabels: Record<ActivityLevel, string> = {
   moderately_active: 'Moderately Active',
   very_active: 'Very Active',
   extra_active: 'Extra Active',
-};
-
-const categories = {
-  Protein: [
-    'FISH',
-    'STEAK',
-    'TURKEY BACON',
-    'BACON',
-    'CHICKEN',
-    'GROUND BEEF',
-    'GROUND TURKEY',
-  ],
-  Carb: [
-    'RICE',
-    'POTATO',
-    'SWEET POTATO',
-    'QUINOA',
-    'FRENCH FRIES',
-    'TORTILLA',
-  ],
-  Veggies: [
-    'BROCCOLI',
-    'CARROT',
-    'BOY CHOY',
-    'SALAD MIX',
-    'KIMCHI',
-    'GREEN BEANS',
-    'BRUSSEL SPROUTS',
-  ],
-  Snacks: ['CHIPS', 'COOKIES', 'ICE CREAM', 'MANGO', 'STRAWBERRY', 'CUSTOM'],
 };
 
 interface DietPreferencesDisplayProps {
@@ -68,7 +39,7 @@ const DietPreferencesDisplay = ({
 
   return (
     <View style={styles.preferencesContainer}>
-      {Object.entries(categories).map(([category, items]) => (
+      {Object.entries(dietCategories).map(([category, items]) => (
         <View key={category} style={styles.categoryContainer}>
           <Text style={styles.categoryTitle}>{category}</Text>
           <View style={styles.itemsContainer}>

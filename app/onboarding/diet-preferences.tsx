@@ -3,36 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { theme } from '@/constants/theme';
 import { useUserData } from '@/hooks/useUserData';
-
-const categories = {
-  Protein: [
-    'FISH',
-    'STEAK',
-    'TURKEY BACON',
-    'BACON',
-    'CHICKEN',
-    'GROUND BEEF',
-    'GROUND TURKEY',
-  ],
-  Carb: [
-    'RICE',
-    'POTATO',
-    'SWEET POTATO',
-    'QUINOA',
-    'FRENCH FRIES',
-    'TORTILLA',
-  ],
-  Veggies: [
-    'BROCCOLI',
-    'CARROT',
-    'BOY CHOY',
-    'SALAD MIX',
-    'KIMCHI',
-    'GREEN BEANS',
-    'BRUSSEL SPROUTS',
-  ],
-  Snacks: ['CHIPS', 'COOKIES', 'ICE CREAM', 'MANGO', 'STRAWBERRY', 'CUSTOM'],
-};
+import dietCategories from '@/data/dietCategories';
 
 export default function DietPreferences() {
   const router = useRouter();
@@ -47,7 +18,7 @@ export default function DietPreferences() {
       const initialSelected: Record<string, Record<string, boolean>> = {};
 
       // Initialize all categories with false values
-      Object.entries(categories).forEach(([category, items]) => {
+      Object.entries(dietCategories).forEach(([category, items]) => {
         initialSelected[category] = {};
         items.forEach((item) => {
           initialSelected[category][item] = false;
@@ -57,7 +28,7 @@ export default function DietPreferences() {
       // Set true for saved preferences
       userData.dietPreferences.forEach((pref) => {
         // Find which category the preference belongs to
-        Object.entries(categories).forEach(([category, items]) => {
+        Object.entries(dietCategories).forEach(([category, items]) => {
           if (items.includes(pref)) {
             initialSelected[category] = {
               ...initialSelected[category],
@@ -110,7 +81,7 @@ export default function DietPreferences() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>SELECT YOUR DIET PREFERENCES</Text>
-      {Object.entries(categories).map(([category, items]) => (
+      {Object.entries(dietCategories).map(([category, items]) => (
         <View key={category} style={styles.categoryContainer}>
           <Text style={styles.categoryTitle}>{category}</Text>
           <View style={styles.itemsContainer}>
