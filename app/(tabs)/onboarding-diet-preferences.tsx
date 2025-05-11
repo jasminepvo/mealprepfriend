@@ -33,9 +33,11 @@ const categories = {
 };
 
 export default function OnboardingDietPreferences() {
-  const [selectedItems, setSelectedItems] = useState({});
+  const [selectedItems, setSelectedItems] = useState<
+    Record<string, Record<string, boolean>>
+  >({});
 
-  const toggleItem = (category, item) => {
+  const toggleItem = (category: string, item: string) => {
     setSelectedItems((prev) => ({
       ...prev,
       [category]: {
