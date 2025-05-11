@@ -5,9 +5,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
-  Slider,
 } from 'react-native';
 import { theme } from '@/constants/theme';
+import Slider from '@react-native-community/slider';
 
 const activityLevels = [
   { label: 'sedentary - little to no exercise', value: 'sedentary' },
