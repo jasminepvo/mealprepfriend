@@ -53,17 +53,6 @@ export default function WeeklyMealPlan() {
           </View>
         ))}
       </ScrollView>
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.footerButton}>
-          <Text style={styles.footerButtonText}>WEEKLY MEAL PLAN</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.footerButton}>
-          <Text style={styles.footerButtonText}>SHOPPING LIST</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.footerButton}>
-          <Text style={styles.footerButtonText}>PROFILE</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }

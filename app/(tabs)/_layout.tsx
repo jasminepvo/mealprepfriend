@@ -14,15 +14,15 @@ export default function TabLayout() {
         headerShown: false,
       }}
     >
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
           tabBarIcon: ({ size, color }) => <Home size={size} color={color} />,
         }}
-      />
+      /> */}
       <Tabs.Screen
-        name="meal-plan"
+        name="weekly-meal-plan"
         options={{
           title: 'Meal Plan',
           tabBarIcon: ({ size, color }) => (
