@@ -381,6 +381,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.card,
     borderRadius: theme.borderRadius.lg,
     padding: theme.spacing.lg,
+    marginTop: theme.spacing.lg,
     ...theme.shadow.sm,
   },
   detailsRow: {
