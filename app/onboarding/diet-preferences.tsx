@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Bold',
   },
   bottomPadding: {
-    height: 20,
+    height: 10,
   },
   navigationButtons: {
     flexDirection: 'row',
@@ -207,8 +207,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: theme.colors.background,
-    padding: 20,
-    paddingBottom: 40,
+    padding: 10,
+    paddingBottom: 10,
     borderTopWidth: 1,
     borderTopColor: theme.colors.border,
     gap: 12,

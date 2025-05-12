@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { theme } from '@/constants/theme';
 import { useUserData } from '@/hooks/useUserData';
@@ -83,76 +89,84 @@ export default function HealthGoals() {
   const adjustedCalories = getAdjustedCalories();
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>CHOOSE YOUR GOAL</Text>
+    <View style={styles.outerContainer}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+      >
+        <Text style={styles.title}>CHOOSE YOUR GOAL</Text>
 
-      <View style={styles.caloriesContainer}>
-        <View style={styles.caloriesBox}>
-          <Text style={styles.caloriesLabel}>BMI</Text>
-          <Text style={styles.caloriesValue}>
-            {userData?.bmi?.toFixed(1) || '--'}
-          </Text>
+        <View style={styles.caloriesContainer}>
+          <View style={styles.caloriesBox}>
+            <Text style={styles.caloriesLabel}>BMI</Text>
+            <Text style={styles.caloriesValue}>
+              {userData?.bmi?.toFixed(1) || '--'}
+            </Text>
+          </View>
+          <View style={styles.caloriesBox}>
+            <Text style={styles.caloriesLabel}>TDEE</Text>
+            <Text style={styles.caloriesValue}>
+              {userData?.dailyCalories || '--'}
+            </Text>
+          </View>
+          <View style={styles.caloriesBoxLarge}>
+            <Text style={styles.caloriesLabel}>Target Daily Calories</Text>
+            <Text style={styles.caloriesValueLarge}>
+              {adjustedCalories ? `${adjustedCalories} cal` : '--'}
+            </Text>
+            <Text style={styles.caloriesDescription}>
+              {userData?.dailyCalories
+                ? HEALTH_GOALS[selectedGoal].calorieDescription
+                : ''}
+            </Text>
+          </View>
         </View>
-        <View style={styles.caloriesBox}>
-          <Text style={styles.caloriesLabel}>TDEE</Text>
-          <Text style={styles.caloriesValue}>
-            {userData?.dailyCalories || '--'}
-          </Text>
-        </View>
-        <View style={styles.caloriesBoxLarge}>
-          <Text style={styles.caloriesLabel}>Target Daily Calories</Text>
-          <Text style={styles.caloriesValueLarge}>
-            {adjustedCalories ? `${adjustedCalories} cal` : '--'}
-          </Text>
-          <Text style={styles.caloriesDescription}>
-            {userData?.dailyCalories
-              ? HEALTH_GOALS[selectedGoal].calorieDescription
-              : ''}
-          </Text>
-        </View>
-      </View>
 
-      <Text style={styles.subtitle}>Select your primary goal</Text>
+        <Text style={styles.subtitle}>Select your primary goal</Text>
 
-      {(Object.entries(HEALTH_GOALS) as [HealthGoal, GoalConfig][]).map(
-        ([goal, config]) => (
-          <TouchableOpacity
-            key={goal}
-            style={[
-              styles.goalButton,
-              selectedGoal === goal && styles.goalButtonActive,
-            ]}
-            onPress={() => setSelectedGoal(goal)}
-          >
-            <View style={styles.goalContent}>
-              <Text
-                style={[
-                  styles.goalText,
-                  selectedGoal === goal && styles.goalTextActive,
-                ]}
-              >
-                {config.title}
-              </Text>
-              <Text style={styles.goalDescription}>{config.description}</Text>
-            </View>
-          </TouchableOpacity>
-        )
-      )}
+        {(Object.entries(HEALTH_GOALS) as [HealthGoal, GoalConfig][]).map(
+          ([goal, config]) => (
+            <TouchableOpacity
+              key={goal}
+              style={[
+                styles.goalButton,
+                selectedGoal === goal && styles.goalButtonActive,
+              ]}
+              onPress={() => setSelectedGoal(goal)}
+            >
+              <View style={styles.goalContent}>
+                <Text
+                  style={[
+                    styles.goalText,
+                    selectedGoal === goal && styles.goalTextActive,
+                  ]}
+                >
+                  {config.title}
+                </Text>
+                <Text style={styles.goalDescription}>{config.description}</Text>
+              </View>
+            </TouchableOpacity>
+          )
+        )}
 
-      <View style={styles.macroContainer}>
-        <View style={styles.macroBox}>
-          <Text style={styles.macroLabel}>Protein</Text>
-          <Text style={styles.macroValue}>{currentMacros.protein}%</Text>
+        <View style={styles.macroContainer}>
+          <View style={styles.macroBox}>
+            <Text style={styles.macroLabel}>Protein</Text>
+            <Text style={styles.macroValue}>{currentMacros.protein}%</Text>
+          </View>
+          <View style={styles.macroBox}>
+            <Text style={styles.macroLabel}>Carbs</Text>
+            <Text style={styles.macroValue}>{currentMacros.carbs}%</Text>
+          </View>
+          <View style={styles.macroBox}>
+            <Text style={styles.macroLabel}>Fat</Text>
+            <Text style={styles.macroValue}>{currentMacros.fat}%</Text>
+          </View>
         </View>
-        <View style={styles.macroBox}>
-          <Text style={styles.macroLabel}>Carbs</Text>
-          <Text style={styles.macroValue}>{currentMacros.carbs}%</Text>
-        </View>
-        <View style={styles.macroBox}>
-          <Text style={styles.macroLabel}>Fat</Text>
-          <Text style={styles.macroValue}>{currentMacros.fat}%</Text>
-        </View>
-      </View>
+
+        {/* Add padding at the bottom to ensure content isn't covered by buttons */}
+        <View style={styles.bottomPadding} />
+      </ScrollView>
 
       <View style={styles.navigationButtons}>
         <TouchableOpacity
@@ -174,17 +188,24 @@ export default function HealthGoals() {
 }
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
+  },
+  contentContainer: {
     padding: 24,
+    paddingTop: 60,
+    paddingBottom: 100, // Add extra padding at bottom for the navigation buttons
   },
   title: {
     ...theme.typography.heading2,
     color: theme.colors.text,
     textAlign: 'center',
     marginBottom: 24,
-    marginTop: 60,
   },
   subtitle: {
     ...theme.typography.body1,
@@ -248,26 +269,29 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.primary,
   },
   goalContent: {
-    flexDirection: 'column',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   goalText: {
     ...theme.typography.body1,
     color: theme.colors.text,
+    fontWeight: '600',
   },
   goalTextActive: {
     color: theme.colors.primary,
-    fontFamily: 'Inter-SemiBold',
+    fontFamily: 'Inter-Bold',
   },
   goalDescription: {
     ...theme.typography.caption,
     color: theme.colors.text,
-    opacity: 0.6,
-    marginTop: 4,
+    opacity: 0.7,
   },
   macroContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 16,
+    marginTop: 24,
+    marginBottom: 24,
   },
   macroBox: {
     flex: 1,
@@ -285,32 +309,42 @@ const styles = StyleSheet.create({
   },
   macroValue: {
     ...theme.typography.heading3,
-    color: theme.colors.secondary,
+    color: theme.colors.primary,
+  },
+  bottomPadding: {
+    height: 10,
   },
   navigationButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 'auto',
-    paddingTop: 24,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: theme.colors.background,
+    padding: 10,
+    paddingBottom: 10,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
+    gap: 12,
   },
   button: {
     flex: 1,
-    paddingVertical: 16,
+    padding: 16,
     borderRadius: theme.borderRadius.lg,
     alignItems: 'center',
-    marginHorizontal: 4,
-  },
-  backButton: {
-    backgroundColor: theme.colors.card,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
   },
   nextButton: {
     backgroundColor: theme.colors.primary,
   },
+  backButton: {
+    backgroundColor: theme.colors.card,
+    borderWidth: 2,
+    borderColor: theme.colors.border,
+  },
   buttonText: {
-    ...theme.typography.button,
     color: theme.colors.card,
+    fontSize: 16,
+    fontFamily: 'Inter-Bold',
   },
   backButtonText: {
     color: theme.colors.text,

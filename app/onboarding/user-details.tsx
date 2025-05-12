@@ -7,6 +7,7 @@ import {
   TextInput,
   Platform,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { theme } from '@/constants/theme';
@@ -95,6 +96,10 @@ export default function UserDetails() {
     }
   };
 
+  const handleBack = () => {
+    router.replace('/');
+  };
+
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -104,122 +109,143 @@ export default function UserDetails() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>LETS FIND OUT YOUR DAILY CALORIES</Text>
-      <View style={styles.genderRow}>
-        <TouchableOpacity
-          style={[
-            styles.genderButton,
-            gender === 'male' && styles.genderButtonActive,
-          ]}
-          onPress={() => setGender('male')}
-        >
-          <Text
-            style={[
-              styles.genderText,
-              gender === 'male' && styles.genderTextActive,
-            ]}
-          >
-            MALE
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.genderButton,
-            gender === 'female' && styles.genderButtonActive,
-          ]}
-          onPress={() => setGender('female')}
-        >
-          <Text
-            style={[
-              styles.genderText,
-              gender === 'female' && styles.genderTextActive,
-            ]}
-          >
-            FEMALE
-          </Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.inputGroup}>
-        <Text style={styles.label}>Age</Text>
-        <View style={styles.sliderRow}>
-          <Text style={styles.sliderMin}>0</Text>
-          <Slider
-            style={styles.slider}
-            minimumValue={0}
-            maximumValue={110}
-            step={1}
-            value={age}
-            onValueChange={setAge}
-            minimumTrackTintColor={theme.colors.primary}
-            maximumTrackTintColor={theme.colors.border}
-            thumbTintColor={theme.colors.primary}
-          />
-          <Text style={styles.sliderMax}>110</Text>
-        </View>
-        <Text style={styles.sliderValue}>{age}</Text>
-      </View>
-      <View style={styles.inputGroup}>
-        <Text style={styles.label}>Height</Text>
-        <View style={styles.heightRow}>
-          <TextInput
-            style={styles.heightInput}
-            keyboardType="numeric"
-            value={heightFt}
-            onChangeText={setHeightFt}
-            maxLength={1}
-          />
-          <Text style={styles.heightUnit}>ft</Text>
-          <TextInput
-            style={styles.heightInput}
-            keyboardType="numeric"
-            value={heightIn}
-            onChangeText={setHeightIn}
-            maxLength={2}
-          />
-          <Text style={styles.heightUnit}>in</Text>
-        </View>
-      </View>
-      <View style={styles.inputGroup}>
-        <Text style={styles.label}>Weight</Text>
-        <TextInput
-          style={styles.weightInput}
-          keyboardType="numeric"
-          value={weight}
-          onChangeText={setWeight}
-        />
-      </View>
-      <View style={styles.inputGroup}>
-        <Text style={styles.label}>Activity Level</Text>
-        {activityLevels.map((level) => (
+    <View style={styles.outerContainer}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+      >
+        <Text style={styles.title}>LETS FIND OUT YOUR DAILY CALORIES</Text>
+        <View style={styles.genderRow}>
           <TouchableOpacity
-            key={level.value}
             style={[
-              styles.activityButton,
-              activity === level.value && styles.activityButtonActive,
+              styles.genderButton,
+              gender === 'male' && styles.genderButtonActive,
             ]}
-            onPress={() => setActivity(level.value as ActivityLevel)}
+            onPress={() => setGender('male')}
           >
             <Text
               style={[
-                styles.activityText,
-                activity === level.value && styles.activityTextActive,
+                styles.genderText,
+                gender === 'male' && styles.genderTextActive,
               ]}
             >
-              {level.label}
+              MALE
             </Text>
           </TouchableOpacity>
-        ))}
+          <TouchableOpacity
+            style={[
+              styles.genderButton,
+              gender === 'female' && styles.genderButtonActive,
+            ]}
+            onPress={() => setGender('female')}
+          >
+            <Text
+              style={[
+                styles.genderText,
+                gender === 'female' && styles.genderTextActive,
+              ]}
+            >
+              FEMALE
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Age</Text>
+          <View style={styles.sliderRow}>
+            <Text style={styles.sliderMin}>0</Text>
+            <Slider
+              style={styles.slider}
+              minimumValue={0}
+              maximumValue={110}
+              step={1}
+              value={age}
+              onValueChange={setAge}
+              minimumTrackTintColor={theme.colors.primary}
+              maximumTrackTintColor={theme.colors.border}
+              thumbTintColor={theme.colors.primary}
+            />
+            <Text style={styles.sliderMax}>110</Text>
+          </View>
+          <Text style={styles.sliderValue}>{age}</Text>
+        </View>
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Height</Text>
+          <View style={styles.heightRow}>
+            <TextInput
+              style={styles.heightInput}
+              keyboardType="numeric"
+              value={heightFt}
+              onChangeText={setHeightFt}
+              maxLength={1}
+            />
+            <Text style={styles.heightUnit}>ft</Text>
+            <TextInput
+              style={styles.heightInput}
+              keyboardType="numeric"
+              value={heightIn}
+              onChangeText={setHeightIn}
+              maxLength={2}
+            />
+            <Text style={styles.heightUnit}>in</Text>
+          </View>
+        </View>
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Weight</Text>
+          <TextInput
+            style={styles.weightInput}
+            keyboardType="numeric"
+            value={weight}
+            onChangeText={setWeight}
+          />
+        </View>
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Activity Level</Text>
+          {activityLevels.map((level) => (
+            <TouchableOpacity
+              key={level.value}
+              style={[
+                styles.activityButton,
+                activity === level.value && styles.activityButtonActive,
+              ]}
+              onPress={() => setActivity(level.value as ActivityLevel)}
+            >
+              <Text
+                style={[
+                  styles.activityText,
+                  activity === level.value && styles.activityTextActive,
+                ]}
+              >
+                {level.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        {/* Add padding at the bottom to ensure content isn't covered by buttons */}
+        <View style={styles.bottomPadding} />
+      </ScrollView>
+
+      <View style={styles.navigationButtons}>
+        <TouchableOpacity
+          style={[styles.button, styles.backButton]}
+          onPress={handleBack}
+        >
+          <Text style={[styles.buttonText, styles.backButtonText]}>Back</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.button,
+            styles.nextButton,
+            isSaving && styles.nextButtonDisabled,
+          ]}
+          onPress={handleNext}
+          disabled={isSaving}
+        >
+          <Text style={styles.buttonText}>
+            {isSaving ? 'Saving...' : 'Next'}
+          </Text>
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        style={[styles.nextButton, isSaving && styles.nextButtonDisabled]}
-        onPress={handleNext}
-        disabled={isSaving}
-      >
-        <Text style={styles.nextButtonText}>
-          {isSaving ? 'Saving...' : 'Next'}
-        </Text>
-      </TouchableOpacity>
     </View>
   );
 }
@@ -231,10 +257,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: theme.colors.background,
   },
+  outerContainer: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
+  },
+  contentContainer: {
     padding: 24,
+    paddingTop: 60,
+    paddingBottom: 100, // Add extra padding at bottom for the navigation buttons
   },
   title: {
     fontFamily: 'Inter-Regular',
@@ -242,7 +276,6 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     textAlign: 'center',
     marginBottom: 24,
-    marginTop: 60,
   },
   genderRow: {
     flexDirection: 'row',
@@ -251,33 +284,34 @@ const styles = StyleSheet.create({
   },
   genderButton: {
     flex: 1,
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.lg,
-    paddingVertical: 16,
-    marginHorizontal: 4,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
     borderWidth: 2,
     borderColor: theme.colors.border,
+    borderRadius: theme.borderRadius.lg,
+    marginHorizontal: 8,
+    alignItems: 'center',
+    backgroundColor: theme.colors.card,
   },
   genderButtonActive: {
-    backgroundColor: theme.colors.secondary + '22',
-    borderColor: theme.colors.secondary,
+    borderColor: theme.colors.primary,
+    backgroundColor: theme.colors.primary + '22',
   },
   genderText: {
     fontFamily: 'Inter-Regular',
     fontSize: 16,
     color: theme.colors.text,
-    textAlign: 'center',
   },
   genderTextActive: {
-    color: theme.colors.secondary,
+    color: theme.colors.primary,
     fontFamily: 'Inter-Bold',
   },
   inputGroup: {
-    marginBottom: 20,
+    marginBottom: 24,
   },
   label: {
     fontFamily: 'Inter-Regular',
-    fontSize: 15,
+    fontSize: 16,
     color: theme.colors.text,
     marginBottom: 8,
   },
@@ -287,95 +321,120 @@ const styles = StyleSheet.create({
   },
   slider: {
     flex: 1,
-    marginHorizontal: 8,
+    height: 40,
   },
   sliderMin: {
-    fontSize: 13,
+    fontFamily: 'Inter-Regular',
+    fontSize: 12,
     color: theme.colors.text,
+    marginRight: 8,
   },
   sliderMax: {
-    fontSize: 13,
+    fontFamily: 'Inter-Regular',
+    fontSize: 12,
     color: theme.colors.text,
+    marginLeft: 8,
   },
   sliderValue: {
-    alignSelf: 'center',
-    fontSize: 15,
-    color: theme.colors.text,
-    marginTop: 4,
+    fontFamily: 'Inter-Bold',
+    fontSize: 18,
+    color: theme.colors.primary,
+    textAlign: 'center',
   },
   heightRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
   },
   heightInput: {
-    width: 48,
-    height: 48,
     backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.lg,
     borderWidth: 2,
     borderColor: theme.colors.border,
+    borderRadius: theme.borderRadius.lg,
+    padding: 12,
     fontFamily: 'Inter-Regular',
-    fontSize: 18,
-    color: theme.colors.text,
-    textAlign: 'center',
-    marginHorizontal: 4,
-  },
-  heightUnit: {
     fontSize: 16,
     color: theme.colors.text,
-    marginHorizontal: 2,
+    width: 60,
+    textAlign: 'center',
+  },
+  heightUnit: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 16,
+    color: theme.colors.text,
+    marginHorizontal: 8,
   },
   weightInput: {
-    width: '100%',
-    height: 48,
     backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.lg,
     borderWidth: 2,
     borderColor: theme.colors.border,
+    borderRadius: theme.borderRadius.lg,
+    padding: 12,
     fontFamily: 'Inter-Regular',
-    fontSize: 18,
+    fontSize: 16,
     color: theme.colors.text,
+    width: '100%',
     textAlign: 'center',
   },
   activityButton: {
     backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.lg,
-    paddingVertical: 14,
-    marginBottom: 8,
     borderWidth: 2,
     borderColor: theme.colors.border,
+    borderRadius: theme.borderRadius.lg,
+    padding: 12,
+    marginBottom: 8,
   },
   activityButtonActive: {
-    backgroundColor: theme.colors.secondary + '22',
-    borderColor: theme.colors.secondary,
+    borderColor: theme.colors.primary,
+    backgroundColor: theme.colors.primary + '22',
   },
   activityText: {
     fontFamily: 'Inter-Regular',
-    fontSize: 15,
+    fontSize: 14,
     color: theme.colors.text,
-    textAlign: 'center',
   },
   activityTextActive: {
-    color: theme.colors.secondary,
+    color: theme.colors.primary,
     fontFamily: 'Inter-Bold',
   },
-  nextButton: {
-    backgroundColor: theme.colors.primary,
+  bottomPadding: {
+    height: 10,
+  },
+  navigationButtons: {
+    flexDirection: 'row',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: theme.colors.background,
+    padding: 10,
+    paddingBottom: 10,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
+    gap: 12,
+  },
+  button: {
+    flex: 1,
     padding: 16,
     borderRadius: theme.borderRadius.lg,
     alignItems: 'center',
-    position: 'absolute',
-    bottom: 40,
-    left: 20,
-    right: 20,
   },
-  nextButtonText: {
+  buttonText: {
     color: theme.colors.card,
-    fontFamily: 'Inter-Bold',
     fontSize: 16,
+    fontFamily: 'Inter-Bold',
+  },
+  backButton: {
+    backgroundColor: theme.colors.card,
+    borderWidth: 2,
+    borderColor: theme.colors.border,
+  },
+  backButtonText: {
+    color: theme.colors.text,
+  },
+  nextButton: {
+    backgroundColor: theme.colors.primary,
   },
   nextButtonDisabled: {
-    opacity: 0.5,
+    opacity: 0.7,
   },
 });
