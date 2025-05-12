@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { theme } from '@/constants/theme';
 import { useUserData } from '@/hooks/useUserData';
@@ -79,34 +85,41 @@ export default function DietPreferences() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>SELECT YOUR DIET PREFERENCES</Text>
-      {Object.entries(dietCategories).map(([category, items]) => (
-        <View key={category} style={styles.categoryContainer}>
-          <Text style={styles.categoryTitle}>{category}</Text>
-          <View style={styles.itemsContainer}>
-            {items.map((item) => (
-              <TouchableOpacity
-                key={item}
-                style={[
-                  styles.itemButton,
-                  selectedItems[category]?.[item] && styles.itemButtonActive,
-                ]}
-                onPress={() => toggleItem(category, item)}
-              >
-                <Text
+    <View style={styles.outerContainer}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+      >
+        <Text style={styles.title}>SELECT YOUR DIET PREFERENCES</Text>
+        {Object.entries(dietCategories).map(([category, items]) => (
+          <View key={category} style={styles.categoryContainer}>
+            <Text style={styles.categoryTitle}>{category}</Text>
+            <View style={styles.itemsContainer}>
+              {items.map((item) => (
+                <TouchableOpacity
+                  key={item}
                   style={[
-                    styles.itemText,
-                    selectedItems[category]?.[item] && styles.itemTextActive,
+                    styles.itemButton,
+                    selectedItems[category]?.[item] && styles.itemButtonActive,
                   ]}
+                  onPress={() => toggleItem(category, item)}
                 >
-                  {item}
-                </Text>
-              </TouchableOpacity>
-            ))}
+                  <Text
+                    style={[
+                      styles.itemText,
+                      selectedItems[category]?.[item] && styles.itemTextActive,
+                    ]}
+                  >
+                    {item}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
-        </View>
-      ))}
+        ))}
+        {/* Add padding at the bottom to ensure content isn't covered by buttons */}
+        <View style={styles.bottomPadding} />
+      </ScrollView>
 
       <View style={styles.navigationButtons}>
         <TouchableOpacity
@@ -128,10 +141,18 @@ export default function DietPreferences() {
 }
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
+  },
+  contentContainer: {
     padding: 24,
+    paddingTop: 60,
+    paddingBottom: 100, // Add extra padding at bottom for the navigation buttons
   },
   title: {
     fontFamily: 'Inter-Regular',
@@ -139,7 +160,6 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     textAlign: 'center',
     marginBottom: 24,
-    marginTop: 60,
   },
   categoryContainer: {
     marginBottom: 16,
@@ -177,12 +197,20 @@ const styles = StyleSheet.create({
     color: theme.colors.secondary,
     fontFamily: 'Inter-Bold',
   },
+  bottomPadding: {
+    height: 20,
+  },
   navigationButtons: {
     flexDirection: 'row',
     position: 'absolute',
-    bottom: 40,
-    left: 20,
-    right: 20,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: theme.colors.background,
+    padding: 20,
+    paddingBottom: 40,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
     gap: 12,
   },
   button: {
