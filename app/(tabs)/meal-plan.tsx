@@ -16,6 +16,8 @@ import {
   WeeklyMealPlan as WeeklyMealPlanType,
   DailyMeals,
 } from '@/utils/mealGenerator';
+import { calculateTargetCalories } from '@/utils/mealPlanUtils';
+import { convertUserDataToProfile } from '@/utils/userDataConverter';
 
 // Map day keys to readable day names
 const dayMappings: Record<keyof WeeklyMealPlanType, string> = {
@@ -50,14 +52,6 @@ export default function WeeklyMealPlan() {
     }
   };
 
-  const saveMealPlan = async (plan: WeeklyMealPlanType) => {
-    try {
-      await AsyncStorage.setItem(MEAL_PLAN_STORAGE_KEY, JSON.stringify(plan));
-    } catch (error) {
-      console.error('Error saving meal plan:', error);
-    }
-  };
-
   const handleGenerateMealPlan = async () => {
     if (!userData || !userData.dietPreferences || !userData.macros) {
       alert('Please complete your profile with diet preferences first');
@@ -67,8 +61,11 @@ export default function WeeklyMealPlan() {
     setIsGenerating(true);
 
     try {
-      // Get calorie target from user data
-      const targetCalories = userData.dailyCalories || 2000;
+      // Convert UserData to UserProfile
+      const userProfile = convertUserDataToProfile(userData);
+
+      // Calculate target calories based on user profile
+      const targetCalories = calculateTargetCalories(userProfile);
 
       // Get macro ratios from user data
       const { protein, carbs, fat } = userData.macros;
@@ -83,7 +80,10 @@ export default function WeeklyMealPlan() {
       );
 
       setMealPlan(newMealPlan);
-      await saveMealPlan(newMealPlan);
+      await AsyncStorage.setItem(
+        MEAL_PLAN_STORAGE_KEY,
+        JSON.stringify(newMealPlan)
+      );
     } catch (error) {
       console.error('Error generating meal plan:', error);
       alert('Failed to generate meal plan');
@@ -215,6 +215,31 @@ export default function WeeklyMealPlan() {
                       </Text>
                     </View>
                   </View>
+
+                  {/* Add snacks section */}
+                  {meals.breakfast.items.some((item) =>
+                    item.includes('(snack)')
+                  ) && (
+                    <View style={styles.mealBox}>
+                      <Text style={styles.mealTitle}>Snacks</Text>
+                      <View style={styles.mealDetails}>
+                        <Text style={styles.mealText}>
+                          {meals.breakfast.items
+                            .filter((item) => item.includes('(snack)'))
+                            .map((item) => item.replace(' (snack)', ''))
+                            .join(', ')}
+                        </Text>
+                        <Text style={styles.mealCalories}>
+                          {meals.breakfast.items.filter((item) =>
+                            item.includes('(snack)')
+                          ).length > 0
+                            ? Math.round(meals.breakfast.calories * 0.1)
+                            : 0}{' '}
+                          cal
+                        </Text>
+                      </View>
+                    </View>
+                  )}
                 </View>
               </View>
             );

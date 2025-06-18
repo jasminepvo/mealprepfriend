@@ -63,7 +63,7 @@ const foodDatabase: Record<string, MealItem> = {
   'LENTILS': { name: 'Lentils', calories: 116, protein: 9, carbs: 20, fat: 0.4, category: 'Protein' },
   'BLACK BEANS': { name: 'Black Beans', calories: 114, protein: 7, carbs: 20, fat: 0.5, category: 'Protein' },
   'CHICKPEAS': { name: 'Chickpeas', calories: 120, protein: 6, carbs: 22, fat: 2, category: 'Protein' },
-  
+
   // Carbs
   'RICE': { name: 'Rice', calories: 204, protein: 4, carbs: 44, fat: 0.5, category: 'Carb' },
   'BROWN RICE': { name: 'Brown Rice', calories: 216, protein: 5, carbs: 45, fat: 1.8, category: 'Carb' },
@@ -85,7 +85,7 @@ const foodDatabase: Record<string, MealItem> = {
   'OATMEAL': { name: 'Oatmeal', calories: 166, protein: 6, carbs: 28, fat: 3.6, category: 'Carb' },
   'COUSCOUS': { name: 'Couscous', calories: 176, protein: 6, carbs: 37, fat: 0.3, category: 'Carb' },
   'BARLEY': { name: 'Barley', calories: 193, protein: 4, carbs: 44, fat: 1, category: 'Carb' },
-  
+
   // Veggies
   'BROCCOLI': { name: 'Broccoli', calories: 55, protein: 3.7, carbs: 11, fat: 0.6, category: 'Veggies' },
   'SPINACH': { name: 'Spinach', calories: 23, protein: 2.9, carbs: 3.6, fat: 0.4, category: 'Veggies' },
@@ -110,7 +110,7 @@ const foodDatabase: Record<string, MealItem> = {
   'AVOCADO': { name: 'Avocado', calories: 160, protein: 2, carbs: 8.5, fat: 15, category: 'Veggies' },
   'CORN': { name: 'Corn', calories: 86, protein: 3.2, carbs: 19, fat: 1.2, category: 'Veggies' },
   'CABBAGE': { name: 'Cabbage', calories: 25, protein: 1.3, carbs: 5.8, fat: 0.1, category: 'Veggies' },
-  
+
   // Snacks
   'CHIPS': { name: 'Chips', calories: 155, protein: 2, carbs: 15, fat: 10, category: 'Snacks' },
   'TORTILLA CHIPS': { name: 'Tortilla Chips', calories: 142, protein: 2, carbs: 19, fat: 7, category: 'Snacks' },
@@ -136,7 +136,7 @@ const foodDatabase: Record<string, MealItem> = {
   'GRANOLA BAR': { name: 'Granola Bar', calories: 120, protein: 3, carbs: 20, fat: 4, category: 'Snacks' },
   'TRAIL MIX': { name: 'Trail Mix', calories: 170, protein: 4, carbs: 15, fat: 11, category: 'Snacks' },
   'HUMMUS': { name: 'Hummus', calories: 166, protein: 7.9, carbs: 14, fat: 9.6, category: 'Snacks' },
-  
+
   // Dairy
   'MILK': { name: 'Milk', calories: 103, protein: 8, carbs: 12, fat: 2.4, category: 'Dairy' },
   'ALMOND MILK': { name: 'Almond Milk', calories: 39, protein: 1.5, carbs: 3.5, fat: 2.5, category: 'Dairy' },
@@ -153,7 +153,7 @@ const foodDatabase: Record<string, MealItem> = {
   'YOGURT': { name: 'Yogurt', calories: 59, protein: 3.5, carbs: 5, fat: 3.3, category: 'Dairy' },
   'KEFIR': { name: 'Kefir', calories: 60, protein: 3.3, carbs: 4.6, fat: 3.3, category: 'Dairy' },
   'WHIPPED CREAM': { name: 'Whipped Cream', calories: 154, protein: 1.5, carbs: 7, fat: 13, category: 'Dairy' },
-  
+
   // Beverages
   'WATER': { name: 'Water', calories: 0, protein: 0, carbs: 0, fat: 0, category: 'Beverages' },
   'SPARKLING WATER': { name: 'Sparkling Water', calories: 0, protein: 0, carbs: 0, fat: 0, category: 'Beverages' },
@@ -182,300 +182,146 @@ export function generateMeal(
   carbRatio: number,
   fatRatio: number
 ): Meal {
+  // Calculate target calories for this meal
+  const mealTargets = {
+    breakfast: targetCalories * 0.25,
+    lunch: targetCalories * 0.35,
+    dinner: targetCalories * 0.30
+  };
+
+  const mealTargetCalories = mealTargets[mealType];
+  // Allow 10% margin of error
+  const minCalories = mealTargetCalories * 0.9;
+  const maxCalories = mealTargetCalories * 1.1;
+
   // Filter food database to only include items in user preferences
   const availableFoods = preferences
     .filter(pref => foodDatabase[pref])
     .map(pref => foodDatabase[pref]);
-  
+
   // If no preferred foods found, use some defaults
   if (availableFoods.length === 0) {
     const defaultMeals = {
       breakfast: {
         name: 'Default Breakfast',
-        items: ['Oatmeal with fruit'],
-        calories: 300,
-        protein: 10,
-        carbs: 45,
-        fat: 8,
+        items: ['OATMEAL', 'EGGS', 'BANANA'],
+        calories: Math.round(mealTargetCalories),
+        protein: Math.round((mealTargetCalories * proteinRatio) / 4),
+        carbs: Math.round((mealTargetCalories * carbRatio) / 4),
+        fat: Math.round((mealTargetCalories * fatRatio) / 9),
       },
       lunch: {
         name: 'Default Lunch',
-        items: ['Chicken salad'],
-        calories: 450,
-        protein: 35,
-        carbs: 30,
-        fat: 15,
+        items: ['CHICKEN BREAST', 'BROWN RICE', 'MIXED GREENS'],
+        calories: Math.round(mealTargetCalories),
+        protein: Math.round((mealTargetCalories * proteinRatio) / 4),
+        carbs: Math.round((mealTargetCalories * carbRatio) / 4),
+        fat: Math.round((mealTargetCalories * fatRatio) / 9),
       },
       dinner: {
         name: 'Default Dinner',
-        items: ['Grilled fish with vegetables'],
-        calories: 500,
-        protein: 40,
-        carbs: 35,
-        fat: 18,
+        items: ['SALMON', 'QUINOA', 'BROCCOLI'],
+        calories: Math.round(mealTargetCalories),
+        protein: Math.round((mealTargetCalories * proteinRatio) / 4),
+        carbs: Math.round((mealTargetCalories * carbRatio) / 4),
+        fat: Math.round((mealTargetCalories * fatRatio) / 9),
       },
     };
-    
     return defaultMeals[mealType];
   }
-  
-  // Target macros for this meal
-  const mealCalorieTargets = {
-    breakfast: targetCalories * 0.25, // 25% of daily calories
-    lunch: targetCalories * 0.35,     // 35% of daily calories
-    dinner: targetCalories * 0.4,     // 40% of daily calories
-  };
-  
-  const mealCalories = mealCalorieTargets[mealType];
-  
-  // Meal templates provide more structure and variety to generated meals
-  const mealTemplates = {
-    breakfast: [
-      {
-        name: 'Hearty Breakfast Bowl',
-        components: ['protein', 'carb', 'veggies'],
-        description: (items: string[]) => `${items[0]} with ${items[1]} and ${items[2]}`,
-        protein: ['EGGS', 'GREEK YOGURT', 'TOFU'],
-        carb: ['OATMEAL', 'SWEET POTATO', 'WHOLE GRAIN BREAD'],
-        veggies: ['SPINACH', 'AVOCADO', 'TOMATO'],
-      },
-      {
-        name: 'Morning Power Smoothie',
-        components: ['protein', 'fruit', 'liquid'],
-        description: (items: string[]) => `${items[1]} smoothie with ${items[0]} and ${items[2]}`,
-        protein: ['GREEK YOGURT', 'PROTEIN SHAKE'],
-        fruit: ['BANANA', 'BLUEBERRY', 'STRAWBERRY', 'MANGO'],
-        liquid: ['ALMOND MILK', 'OAT MILK', 'MILK', 'COCONUT MILK'],
-      },
-      {
-        name: 'Classic Breakfast',
-        components: ['protein', 'carb', 'side'],
-        description: (items: string[]) => `${items[0]} with ${items[1]} and ${items[2]}`,
-        protein: ['EGGS', 'BACON', 'TURKEY BACON'],
-        carb: ['WHOLE GRAIN BREAD', 'SWEET POTATO', 'OATMEAL'],
-        side: ['AVOCADO', 'SPINACH', 'TOMATO', 'FRUIT'],
-      },
-    ],
-    lunch: [
-      {
-        name: 'Power Bowl',
-        components: ['protein', 'carb', 'veggies', 'topping'],
-        description: (items: string[]) => `${items[0]} bowl with ${items[1]}, ${items[2]}, and ${items[3]}`,
-        protein: ['CHICKEN BREAST', 'SALMON', 'TOFU', 'TEMPEH'],
-        carb: ['BROWN RICE', 'QUINOA', 'SWEET POTATO'],
-        veggies: ['BROCCOLI', 'KALE', 'SPINACH', 'MIXED GREENS'],
-        topping: ['AVOCADO', 'ALMONDS', 'FETA CHEESE'],
-      },
-      {
-        name: 'Hearty Salad',
-        components: ['base', 'protein', 'veggies', 'topping'],
-        description: (items: string[]) => `${items[1]} ${items[0]} with ${items[2]} and ${items[3]}`,
-        base: ['MIXED GREENS', 'SPINACH', 'KALE', 'ARUGULA'],
-        protein: ['CHICKEN BREAST', 'SALMON', 'TUNA', 'TOFU', 'EGGS'],
-        veggies: ['BELL PEPPER', 'CUCUMBER', 'TOMATO', 'AVOCADO'],
-        topping: ['ALMONDS', 'FETA CHEESE', 'WALNUTS'],
-      },
-      {
-        name: 'Wrap Combo',
-        components: ['protein', 'carb', 'veggies', 'sauce'],
-        description: (items: string[]) => `${items[0]} ${items[1]} wrap with ${items[2]} and ${items[3]}`,
-        protein: ['CHICKEN BREAST', 'GROUND TURKEY', 'TOFU', 'EGGS'],
-        carb: ['TORTILLA', 'WHOLE GRAIN BREAD'],
-        veggies: ['MIXED GREENS', 'BELL PEPPER', 'TOMATO', 'AVOCADO'],
-        sauce: ['HUMMUS', 'GREEK YOGURT'],
-      },
-    ],
-    dinner: [
-      {
-        name: 'Protein & Sides',
-        components: ['protein', 'carb', 'veggies', 'seasoning'],
-        description: (items: string[]) => `${items[3]} ${items[0]} with ${items[1]} and ${items[2]}`,
-        protein: ['SALMON', 'CHICKEN BREAST', 'STEAK', 'TOFU', 'TILAPIA'],
-        carb: ['BROWN RICE', 'QUINOA', 'SWEET POTATO', 'POTATO'],
-        veggies: ['BROCCOLI', 'ASPARAGUS', 'GREEN BEANS', 'CAULIFLOWER'],
-        seasoning: ['Roasted', 'Grilled', 'Baked', 'Sautéed'],
-      },
-      {
-        name: 'Hearty Bowl',
-        components: ['protein', 'carb', 'veggies', 'sauce'],
-        description: (items: string[]) => `${items[0]} ${items[1]} bowl with ${items[2]} and ${items[3]}`,
-        protein: ['GROUND TURKEY', 'GROUND BEEF', 'CHICKEN BREAST', 'TOFU'],
-        carb: ['BROWN RICE', 'QUINOA', 'SWEET POTATO'],
-        veggies: ['BROCCOLI', 'BELL PEPPER', 'SPINACH', 'AVOCADO'],
-        sauce: ['spicy sauce', 'garlic sauce', 'creamy sauce'],
-      },
-      {
-        name: 'Pasta Dish',
-        components: ['protein', 'carb', 'veggies', 'topping'],
-        description: (items: string[]) => `${items[0]} ${items[1]} with ${items[2]} and ${items[3]}`,
-        protein: ['CHICKEN BREAST', 'GROUND TURKEY', 'SHRIMP', 'TOFU'],
-        carb: ['PASTA', 'WHOLE WHEAT PASTA'],
-        veggies: ['BROCCOLI', 'SPINACH', 'TOMATO', 'BELL PEPPER'],
-        topping: ['PARMESAN', 'MOZZARELLA', 'herb garnish'],
-      },
-    ],
-  };
-  
-  // Select a meal template
-  const templates = mealTemplates[mealType];
-  const template = templates[Math.floor(Math.random() * templates.length)];
-  
-  // Build the meal
-  const selectedItems: MealItem[] = [];
-  const itemNames: string[] = [];
-  let currentCalories = 0;
-  let currentProtein = 0;
-  let currentCarbs = 0;
-  let currentFat = 0;
-  
-  // Select an item for each component in the template
-  for (const component of template.components) {
-    // Get component options
-    const componentOptions = template[component as keyof typeof template] as string[];
-    if (!componentOptions || !Array.isArray(componentOptions)) continue;
-    
-    // Try to find a match in preferences
-    const matchingPrefs = preferences.filter(pref => 
-      componentOptions.includes(pref) && foodDatabase[pref]
-    );
-    
-    if (matchingPrefs.length > 0) {
-      // Randomly select from matching preferences
-      const selectedItem = matchingPrefs[Math.floor(Math.random() * matchingPrefs.length)];
-      const foodItem = foodDatabase[selectedItem];
-      
-      if (foodItem) {
-        selectedItems.push(foodItem);
-        itemNames.push(foodItem.name);
-        currentCalories += foodItem.calories;
-        currentProtein += foodItem.protein;
-        currentCarbs += foodItem.carbs;
-        currentFat += foodItem.fat;
-      } else if (typeof componentOptions[0] === 'string') {
-        // Use a generic name if we don't have nutrition data
-        itemNames.push(componentOptions[0]);
-      }
-    } else if (componentOptions.length > 0 && typeof componentOptions[0] === 'string') {
-      // If no matches in preferences, just use a name
-      itemNames.push(componentOptions[0]);
-    }
-  }
-  
-  // If we couldn't build a proper meal, fall back to simpler approach
-  if (selectedItems.length === 0) {
-    return simpleRandomMeal(availableFoods, mealType, targetCalories);
-  }
-  
-  // Generate a meal description
-  let mealName = template.name;
-  let description = '';
-  
-  try {
-    if (typeof template.description === 'function' && itemNames.length >= template.components.length) {
-      description = template.description(itemNames);
-    } else {
-      description = itemNames.join(', ');
-    }
-  } catch (e) {
-    // Fallback if description generation fails
-    description = itemNames.join(', ');
-  }
-  
-  return {
-    name: mealName,
-    items: description ? [description] : itemNames,
-    calories: Math.round(currentCalories),
-    protein: Math.round(currentProtein),
-    carbs: Math.round(currentCarbs),
-    fat: Math.round(currentFat),
-  };
-}
 
-/**
- * Simple random meal generation approach as a fallback
- */
-function simpleRandomMeal(
-  availableFoods: MealItem[],
-  mealType: 'breakfast' | 'lunch' | 'dinner',
-  targetCalories: number
-): Meal {
-  // Different meal types have different compositions
-  const mealTypeConfigs = {
-    breakfast: {
-      caloriePercent: 0.25, // 25% of daily calories
-      namePrefixes: ['Hearty', 'Morning', 'Sunrise'],
-      proteinItems: availableFoods.filter(f => f.category === 'Protein' && ['EGGS', 'GREEK YOGURT', 'TOFU'].includes(f.name.toUpperCase())),
-      carbItems: availableFoods.filter(f => f.category === 'Carb' && ['OATMEAL', 'BREAD', 'BAGEL'].includes(f.name.toUpperCase())),
-    },
-    lunch: {
-      caloriePercent: 0.35,
-      namePrefixes: ['Fresh', 'Power', 'Midday'],
-      proteinItems: availableFoods.filter(f => f.category === 'Protein'),
-      carbItems: availableFoods.filter(f => f.category === 'Carb'),
-    },
-    dinner: {
-      caloriePercent: 0.4,
-      namePrefixes: ['Savory', 'Evening', 'Gourmet'],
-      proteinItems: availableFoods.filter(f => f.category === 'Protein'),
-      carbItems: availableFoods.filter(f => f.category === 'Carb'),
-    },
-  };
-  
-  const config = mealTypeConfigs[mealType];
-  const mealCalories = targetCalories * config.caloriePercent;
-  
-  // Simple algorithm to select foods
-  const selectedItems: MealItem[] = [];
-  let currentCalories = 0;
-  let currentProtein = 0;
-  let currentCarbs = 0;
-  let currentFat = 0;
-  
-  // Add a protein
-  const proteinOptions = config.proteinItems.length > 0 ? config.proteinItems : availableFoods.filter(f => f.category === 'Protein');
-  if (proteinOptions.length > 0) {
-    const protein = proteinOptions[Math.floor(Math.random() * proteinOptions.length)];
-    selectedItems.push(protein);
-    currentCalories += protein.calories;
-    currentProtein += protein.protein;
-    currentCarbs += protein.carbs;
-    currentFat += protein.fat;
+  // Categorize foods
+  const proteinFoods = availableFoods.filter(food => food.category === 'Protein');
+  const carbFoods = availableFoods.filter(food => food.category === 'Carb');
+  const veggies = availableFoods.filter(food => food.category === 'Veggies');
+
+  // Try to generate a meal that meets the calorie target
+  let attempts = 0;
+  let bestMeal: Meal | null = null;
+  let closestCalorieDiff = Infinity;
+
+  while (attempts < 15) {
+    // Select a protein (40-50% of meal calories)
+    const proteinTarget = mealTargetCalories * 0.45;
+    const proteinFood = proteinFoods.length > 0 ?
+      proteinFoods.reduce((prev, curr) =>
+        Math.abs(curr.calories - proteinTarget) < Math.abs(prev.calories - proteinTarget) ? curr : prev
+      ) : null;
+
+    // Select a carb (30-40% of meal calories)
+    const carbTarget = mealTargetCalories * 0.35;
+    const carbFood = carbFoods.length > 0 ?
+      carbFoods.reduce((prev, curr) =>
+        Math.abs(curr.calories - carbTarget) < Math.abs(prev.calories - carbTarget) ? curr : prev
+      ) : null;
+
+    // Select veggies (remaining calories)
+    const veggie = veggies.length > 0 ?
+      veggies[Math.floor(Math.random() * veggies.length)] : null;
+
+    // Calculate meal totals
+    const items: string[] = [];
+    let totalCalories = 0;
+    let totalProtein = 0;
+    let totalCarbs = 0;
+    let totalFat = 0;
+
+    if (proteinFood) {
+      items.push(proteinFood.name.toUpperCase());
+      totalCalories += proteinFood.calories;
+      totalProtein += proteinFood.protein;
+      totalCarbs += proteinFood.carbs;
+      totalFat += proteinFood.fat;
+    }
+
+    if (carbFood) {
+      items.push(carbFood.name.toUpperCase());
+      totalCalories += carbFood.calories;
+      totalProtein += carbFood.protein;
+      totalCarbs += carbFood.carbs;
+      totalFat += carbFood.fat;
+    }
+
+    if (veggie) {
+      items.push(veggie.name.toUpperCase());
+      totalCalories += veggie.calories;
+      totalProtein += veggie.protein;
+      totalCarbs += veggie.carbs;
+      totalFat += veggie.fat;
+    }
+
+    const meal = {
+      name: `${mealType.charAt(0).toUpperCase() + mealType.slice(1)} Meal`,
+      items,
+      calories: Math.round(totalCalories),
+      protein: Math.round(totalProtein),
+      carbs: Math.round(totalCarbs),
+      fat: Math.round(totalFat),
+    };
+
+    // If we found a meal within our target range, use it
+    if (meal.calories >= minCalories && meal.calories <= maxCalories) {
+      return meal;
+    }
+
+    // Keep track of the closest meal to target
+    const calorieDiff = Math.abs(meal.calories - mealTargetCalories);
+    if (calorieDiff < closestCalorieDiff) {
+      closestCalorieDiff = calorieDiff;
+      bestMeal = meal;
+    }
+
+    attempts++;
   }
-  
-  // Add a carb
-  const carbOptions = config.carbItems.length > 0 ? config.carbItems : availableFoods.filter(f => f.category === 'Carb');
-  if (carbOptions.length > 0) {
-    const carb = carbOptions[Math.floor(Math.random() * carbOptions.length)];
-    selectedItems.push(carb);
-    currentCalories += carb.calories;
-    currentProtein += carb.protein;
-    currentCarbs += carb.carbs;
-    currentFat += carb.fat;
-  }
-  
-  // Add a vegetable
-  const veggieOptions = availableFoods.filter(f => f.category === 'Veggies');
-  if (veggieOptions.length > 0) {
-    const veggie = veggieOptions[Math.floor(Math.random() * veggieOptions.length)];
-    selectedItems.push(veggie);
-    currentCalories += veggie.calories;
-    currentProtein += veggie.protein;
-    currentCarbs += veggie.carbs;
-    currentFat += veggie.fat;
-  }
-  
-  // Generate a meal name
-  const prefix = config.namePrefixes[Math.floor(Math.random() * config.namePrefixes.length)];
-  const mainItem = selectedItems.find(item => item.category === 'Protein')?.name || 'Meal';
-  const mealName = `${prefix} ${mainItem}`;
-  
-  return {
-    name: mealName,
-    items: selectedItems.map(item => item.name),
-    calories: Math.round(currentCalories),
-    protein: Math.round(currentProtein),
-    carbs: Math.round(currentCarbs),
-    fat: Math.round(currentFat),
+
+  // If we couldn't find an ideal meal, return the closest one
+  return bestMeal || {
+    name: `${mealType.charAt(0).toUpperCase() + mealType.slice(1)} Meal`,
+    items: ['OATMEAL', 'EGGS', 'MIXED GREENS'],
+    calories: Math.round(mealTargetCalories),
+    protein: Math.round((mealTargetCalories * proteinRatio) / 4),
+    carbs: Math.round((mealTargetCalories * carbRatio) / 4),
+    fat: Math.round((mealTargetCalories * fatRatio) / 9),
   };
 }
 
@@ -489,33 +335,53 @@ export function generateDailyMeals(
   carbRatio: number,
   fatRatio: number
 ): DailyMeals {
-  const breakfast = generateMeal(
-    preferences,
-    targetCalories,
-    'breakfast',
-    proteinRatio,
-    carbRatio,
-    fatRatio
-  );
-  
-  const lunch = generateMeal(
-    preferences,
-    targetCalories,
-    'lunch',
-    proteinRatio,
-    carbRatio,
-    fatRatio
-  );
-  
-  const dinner = generateMeal(
-    preferences,
-    targetCalories,
-    'dinner',
-    proteinRatio,
-    carbRatio,
-    fatRatio
-  );
-  
+  // Generate main meals
+  const breakfast = generateMeal(preferences, targetCalories, 'breakfast', proteinRatio, carbRatio, fatRatio);
+  const lunch = generateMeal(preferences, targetCalories, 'lunch', proteinRatio, carbRatio, fatRatio);
+  const dinner = generateMeal(preferences, targetCalories, 'dinner', proteinRatio, carbRatio, fatRatio);
+
+  // Calculate remaining calories needed
+  const currentTotal = breakfast.calories + lunch.calories + dinner.calories;
+  const targetSnackCalories = targetCalories * 0.10; // 10% for snacks
+  const remainingCalories = targetCalories - currentTotal;
+
+  // Generate snacks if needed
+  const snackFoods = preferences
+    .filter(pref => foodDatabase[pref])
+    .map(pref => foodDatabase[pref])
+    .filter(food =>
+      food.category === 'Snacks' &&
+      food.calories <= targetSnackCalories * 1.2
+    );
+
+  // Try to add snacks to meet calorie goals
+  if (remainingCalories > targetCalories * 0.05 && snackFoods.length > 0) {
+    // Find snacks that best fit the remaining calories
+    const snack = snackFoods.reduce((prev, curr) =>
+      Math.abs(curr.calories - remainingCalories) < Math.abs(prev.calories - remainingCalories) ? curr : prev
+    );
+
+    // Create a copy of breakfast without modifying its original values
+    const breakfastWithSnack = {
+      ...breakfast,
+      items: [...breakfast.items, snack.name + ' (snack)'],
+      calories: breakfast.calories + snack.calories,
+      protein: breakfast.protein + snack.protein,
+      carbs: breakfast.carbs + snack.carbs,
+      fat: breakfast.fat + snack.fat,
+    };
+
+    return {
+      breakfast: breakfastWithSnack,
+      lunch,
+      dinner,
+      totalCalories: breakfastWithSnack.calories + lunch.calories + dinner.calories,
+      totalProtein: breakfastWithSnack.protein + lunch.protein + dinner.protein,
+      totalCarbs: breakfastWithSnack.carbs + lunch.carbs + dinner.carbs,
+      totalFat: breakfastWithSnack.fat + lunch.fat + dinner.fat,
+    };
+  }
+
   return {
     breakfast,
     lunch,
