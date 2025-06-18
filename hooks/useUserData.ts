@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { DietaryPreference } from '@/utils/mealGenerator';
 
 export interface UserData {
   gender: 'male' | 'female';
@@ -9,7 +10,7 @@ export interface UserData {
   weight: string;
   activity: ActivityLevel;
   healthGoals: string[];
-  dietPreferences: string[];
+  dietPreferences: DietaryPreference[];
   dailyCalories?: number;
   macros?: {
     protein: number;
@@ -113,7 +114,7 @@ export function useUserData() {
     // Harris-Benedict equation for BMR
     const weight = parseFloat(data.weight) * 0.453592; // Convert lbs to kg
     const height = (parseFloat(data.heightFt) * 30.48) + (parseFloat(data.heightIn) * 2.54); // Convert ft/in to cm
-    
+
     let bmr;
     if (data.gender === 'male') {
       bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * data.age);
@@ -136,7 +137,7 @@ export function useUserData() {
   const updateUserData = async (data: Partial<UserData>) => {
     const currentData = userData || {} as UserData;
     const updatedData = { ...currentData, ...data } as UserData;
-    
+
     // If we have all the necessary fields, calculate derived values
     if (
       updatedData.gender &&

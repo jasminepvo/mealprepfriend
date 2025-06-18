@@ -38,6 +38,9 @@ export interface WeeklyMealPlan {
   sunday: DailyMeals;
 }
 
+// Create a union type of all possible diet preferences
+export type DietaryPreference = typeof dietCategories[keyof typeof dietCategories][number];
+
 // Sample database of food items with nutrition info
 // In a real app, this would come from an API or a more comprehensive database
 const foodDatabase: Record<string, MealItem> = {
@@ -175,7 +178,7 @@ const foodDatabase: Record<string, MealItem> = {
  * Generate a meal based on dietary preferences and calorie targets
  */
 export function generateMeal(
-  preferences: string[],
+  preferences: DietaryPreference[],
   targetCalories: number,
   mealType: 'breakfast' | 'lunch' | 'dinner',
   proteinRatio: number,
@@ -329,7 +332,7 @@ export function generateMeal(
  * Generate a full day of meals
  */
 export function generateDailyMeals(
-  preferences: string[],
+  preferences: DietaryPreference[],
   targetCalories: number,
   proteinRatio: number,
   carbRatio: number,
@@ -397,7 +400,7 @@ export function generateDailyMeals(
  * Generate a full week of meals
  */
 export function generateWeeklyMealPlan(
-  preferences: string[],
+  preferences: DietaryPreference[],
   targetCalories: number,
   proteinRatio: number,
   carbRatio: number,
